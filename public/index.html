@@ -81,18 +81,18 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav nav-tabs ms-auto">
-          <li class="nav-item">
-            <a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#home">Home</a>
+        <ul class="nav nav-tabs ms-auto" id="mainTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" id="mood-tab" data-bs-toggle="tab" href="#mood">Mood</a>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="mood-tab" data-bs-toggle="tab" data-bs-target="#mood" type="button" role="tab" aria-controls="mood" aria-selected="false">Mood</button>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" id="stats-tab" data-bs-toggle="tab" href="#stats">Stats</a>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button" role="tab" aria-controls="stats" aria-selected="false">Stats</button>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" id="settings-tab" data-bs-toggle="tab" href="#settings">Settings</a>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Settings</button>
           </li>
         </ul>
       </div>
@@ -144,6 +144,20 @@
 
       <!-- Mood Tab -->
       <div class="tab-pane fade" id="mood">
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>Mood Tracker</div>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-success active" id="weekly-mood-btn">Weekly</button>
+              <button type="button" class="btn btn-sm btn-outline-success" id="monthly-mood-btn">Monthly</button>
+              <button type="button" class="btn btn-sm btn-outline-success" id="yearly-mood-btn">Yearly</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="moodTrackerChart" height="300"></canvas>
+          </div>
+        </div>
+        
         <div class="card">
           <div class="card-header">
             Your Mood History
@@ -162,7 +176,21 @@
 
       <!-- Stats Tab -->
       <div class="tab-pane fade" id="stats">
-        <div class="card">
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>HRV Tracker</div>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-success active" id="weekly-hrv-btn">Weekly</button>
+              <button type="button" class="btn btn-sm btn-outline-success" id="monthly-hrv-btn">Monthly</button>
+              <button type="button" class="btn btn-sm btn-outline-success" id="yearly-hrv-btn">Yearly</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="hrvTrackerChart" height="300"></canvas>
+          </div>
+        </div>
+      
+        <div class="card mb-4">
           <div class="card-header">
             HRV & Mood Trends
           </div>
@@ -236,6 +264,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Global variables
@@ -403,6 +432,244 @@
           selectedMood = this.getAttribute('data-mood');
         });
       });
+      
+      // Set up the mood tracker
+      let moodTrackerPeriod = 'weekly';
+      let moodTrackerChart = null;
+      
+      function initMoodTracker(period = 'weekly') {
+        moodTrackerPeriod = period;
+        const ctx = document.getElementById('moodTrackerChart');
+        if (!ctx) return;
+        
+        if (moodTrackerChart) {
+          moodTrackerChart.destroy();
+        }
+        
+        const { labels, data } = processMoodDataForPeriod(moodData, period);
+        const moodMap = { 'sad': 1, 'meh': 2, 'neutral': 3, 'happy': 4, 'excited': 5 };
+        
+        moodTrackerChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Mood Rating',
+              data: data,
+              borderColor: '#66bb6a',
+              backgroundColor: 'rgba(102, 187, 106, 0.1)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                min: 0,
+                max: 6,
+                ticks: {
+                  stepSize: 1,
+                  callback: function(value) {
+                    const labels = ['', 'Sad', 'Meh', 'Neutral', 'Happy', 'Excited', ''];
+                    return labels[value];
+                  }
+                }
+              }
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: `${period.charAt(0).toUpperCase() + period.slice(1)} Mood Tracking`
+              }
+            }
+          }
+        });
+      }
+      
+      // Set up the HRV tracker
+      let hrvTrackerPeriod = 'weekly';
+      let hrvTrackerChart = null;
+      
+      function initHRVTracker(period = 'weekly') {
+        hrvTrackerPeriod = period;
+        const ctx = document.getElementById('hrvTrackerChart');
+        if (!ctx) return;
+        
+        if (hrvTrackerChart) {
+          hrvTrackerChart.destroy();
+        }
+        
+        const { labels, data } = processHRVDataForPeriod(hrvData, period);
+        
+        hrvTrackerChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'HRV (ms)',
+              data: data,
+              borderColor: '#2e7d32',
+              backgroundColor: 'rgba(46, 125, 50, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: false,
+                title: {
+                  display: true,
+                  text: 'HRV (ms)'
+                }
+              }
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: `${period.charAt(0).toUpperCase() + period.slice(1)} HRV Tracking`
+              }
+            }
+          }
+        });
+      }
+      
+      // Helper functions for data processing
+      function processMoodDataForPeriod(data, period) {
+        if (!data || !data.length) {
+          return { labels: [], data: [] };
+        }
+        
+        // Sort data by date (oldest to newest)
+        const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        // Map mood values
+        const moodMap = { 'sad': 1, 'meh': 2, 'neutral': 3, 'happy': 4, 'excited': 5 };
+        
+        if (period === 'weekly') {
+          // Last 7 days
+          const oneWeekAgo = new Date();
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+          
+          const filteredData = sortedData.filter(item => new Date(item.date) >= oneWeekAgo);
+          
+          return {
+            labels: filteredData.map(item => {
+              const date = new Date(item.date);
+              return date.toLocaleDateString('en-US', { weekday: 'short' });
+            }),
+            data: filteredData.map(item => moodMap[item.mood] || 3)
+          };
+        } else if (period === 'monthly') {
+          // Last 30 days
+          const oneMonthAgo = new Date();
+          oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+          
+          const filteredData = sortedData.filter(item => new Date(item.date) >= oneMonthAgo);
+          
+          return {
+            labels: filteredData.map(item => {
+              const date = new Date(item.date);
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }),
+            data: filteredData.map(item => moodMap[item.mood] || 3)
+          };
+        } else if (period === 'yearly') {
+          // Group by month for the year
+          const thisYear = new Date().getFullYear();
+          const monthlyData = Array(12).fill(0);
+          const monthlyCount = Array(12).fill(0);
+          
+          sortedData.forEach(item => {
+            const date = new Date(item.date);
+            if (date.getFullYear() === thisYear) {
+              const month = date.getMonth();
+              monthlyData[month] += moodMap[item.mood] || 3;
+              monthlyCount[month]++;
+            }
+          });
+          
+          // Calculate monthly averages
+          const monthlyAverages = monthlyData.map((total, i) => 
+            monthlyCount[i] > 0 ? total / monthlyCount[i] : null
+          );
+          
+          return {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            data: monthlyAverages
+          };
+        }
+        
+        return { labels: [], data: [] };
+      }
+      
+      function processHRVDataForPeriod(data, period) {
+        if (!data || !data.length) {
+          return { labels: [], data: [] };
+        }
+        
+        // Sort data by date (oldest to newest)
+        const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        if (period === 'weekly') {
+          // Last 7 days
+          const oneWeekAgo = new Date();
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+          
+          const filteredData = sortedData.filter(item => new Date(item.date) >= oneWeekAgo);
+          
+          return {
+            labels: filteredData.map(item => {
+              const date = new Date(item.date);
+              return date.toLocaleDateString('en-US', { weekday: 'short' });
+            }),
+            data: filteredData.map(item => item.value)
+          };
+        } else if (period === 'monthly') {
+          // Last 30 days
+          const oneMonthAgo = new Date();
+          oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+          
+          const filteredData = sortedData.filter(item => new Date(item.date) >= oneMonthAgo);
+          
+          return {
+            labels: filteredData.map(item => {
+              const date = new Date(item.date);
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }),
+            data: filteredData.map(item => item.value)
+          };
+        } else if (period === 'yearly') {
+          // Group by month for the year
+          const thisYear = new Date().getFullYear();
+          const monthlyData = Array(12).fill(0);
+          const monthlyCount = Array(12).fill(0);
+          
+          sortedData.forEach(item => {
+            const date = new Date(item.date);
+            if (date.getFullYear() === thisYear) {
+              const month = date.getMonth();
+              monthlyData[month] += item.value;
+              monthlyCount[month]++;
+            }
+          });
+          
+          // Calculate monthly averages
+          const monthlyAverages = monthlyData.map((total, i) => 
+            monthlyCount[i] > 0 ? total / monthlyCount[i] : null
+          );
+          
+          return {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            data: monthlyAverages
+          };
+        }
+        
+        return { labels: [], data: [] };
+      }
       
       // Save mood entry
       document.getElementById('saveMood').addEventListener('click', async function() {
@@ -800,11 +1067,23 @@
         initCombinedChart();
       });
       
-      // Set up tab switching listeners
-      document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function(event) {
-          if (event.target.id === 'stats-tab') {
-            initCombinedChart();
+      // Set up Tab functionality with Bootstrap's Tab API
+      const triggerTabList = document.querySelectorAll('#mainTabs button');
+      triggerTabList.forEach(tabEl => {
+        tabEl.addEventListener('click', event => {
+          event.preventDefault();
+          const tabTarget = new bootstrap.Tab(tabEl);
+          tabTarget.show();
+          
+          // Take specific actions based on which tab was selected
+          if (tabEl.id === 'stats-tab') {
+            setTimeout(() => {
+              initCombinedChart();
+            }, 100); // Small delay to ensure the tab is fully shown
+          } else if (tabEl.id === 'mood-tab') {
+            setTimeout(() => {
+              loadMoodHistory();
+            }, 100);
           }
         });
       });
