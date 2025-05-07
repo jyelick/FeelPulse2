@@ -2,20 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FeelPulse</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
+      padding-bottom: 80px; /* Space for bottom navigation */
       background-color: #f8f9fa;
     }
     .navbar-brand {
       font-weight: bold;
       color: #2e7d32 !important;
+    }
+    
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: white;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 65px;
+      z-index: 1000;
+      border-top: 1px solid #eee;
+    }
+    
+    .nav-item-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      height: 100%;
+      text-decoration: none;
+      color: #6c757d;
+      font-size: 0.7rem;
+      padding: 8px 0;
+    }
+    
+    .nav-item-bottom.active {
+      color: #2e7d32;
+      font-weight: bold;
+    }
+    
+    .nav-item-bottom i {
+      font-size: 1.5rem;
+      margin-bottom: 2px;
     }
     .container {
       max-width: 800px;
@@ -74,32 +115,34 @@
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar navbar-light bg-light">
     <div class="container">
       <a class="navbar-brand" href="#">FeelPulse</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="nav nav-tabs ms-auto" id="mainTabs" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="mood-tab" data-bs-toggle="tab" data-bs-target="#mood" type="button" role="tab" aria-controls="mood" aria-selected="false">Mood</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button" role="tab" aria-controls="stats" aria-selected="false">Stats</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Settings</button>
-          </li>
-        </ul>
-      </div>
     </div>
   </nav>
 
-  <div class="container mt-4">
+  <!-- Hidden tabs for Bootstrap tab functionality -->
+  <div style="display: none;">
+    <ul class="nav" id="mainTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="mood-tab" data-bs-toggle="tab" data-bs-target="#mood" type="button" role="tab" aria-controls="mood" aria-selected="false">Mood</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="hrv-tab" data-bs-toggle="tab" data-bs-target="#hrv" type="button" role="tab" aria-controls="hrv" aria-selected="false">HRV</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button" role="tab" aria-controls="stats" aria-selected="false">Stats</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Settings</button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="container mt-2">
     <div class="tab-content">
       <!-- Home Tab -->
       <div class="tab-pane fade show active" id="home">
@@ -173,18 +216,9 @@
           </div>
         </div>
       </div>
-
-      <!-- Stats Tab -->
-      <div class="tab-pane fade" id="stats">
-        <div class="card mb-4">
-          <div class="card-header">
-            HRV & Mood Trends
-          </div>
-          <div class="card-body">
-            <canvas id="combinedChart"></canvas>
-          </div>
-        </div>
       
+      <!-- HRV Tab -->
+      <div class="tab-pane fade" id="hrv">
         <div class="card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center">
             <div>HRV Tracker</div>
@@ -196,6 +230,31 @@
           </div>
           <div class="card-body">
             <canvas id="hrvTrackerChart" height="300"></canvas>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            HRV Insights
+          </div>
+          <div class="card-body">
+            <ul>
+              <li>Your average HRV has increased by 5ms over the past week.</li>
+              <li>Higher HRV indicates better recovery and lower stress levels.</li>
+              <li>Try regular deep breathing exercises to improve your HRV.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Tab -->
+      <div class="tab-pane fade" id="stats">
+        <div class="card mb-4">
+          <div class="card-header">
+            HRV & Mood Trends
+          </div>
+          <div class="card-body">
+            <canvas id="combinedChart"></canvas>
           </div>
         </div>
         
@@ -261,6 +320,30 @@
         </div>
       </div>
     </div>
+  </div>
+  
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav">
+    <a href="#" class="nav-item-bottom active" id="home-nav">
+      <i class="bi bi-house-fill"></i>
+      <span>Home</span>
+    </a>
+    <a href="#" class="nav-item-bottom" id="mood-nav">
+      <i class="bi bi-emoji-smile"></i>
+      <span>Mood</span>
+    </a>
+    <a href="#" class="nav-item-bottom" id="hrv-nav">
+      <i class="bi bi-heart-pulse"></i>
+      <span>HRV</span>
+    </a>
+    <a href="#" class="nav-item-bottom" id="stats-nav">
+      <i class="bi bi-bar-chart"></i>
+      <span>Stats</span>
+    </a>
+    <a href="#" class="nav-item-bottom" id="settings-nav">
+      <i class="bi bi-gear"></i>
+      <span>Settings</span>
+    </a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -1079,16 +1162,39 @@
           if (tabEl.id === 'stats-tab') {
             setTimeout(() => {
               initCombinedChart();
-              // Initialize HRV tracker with weekly data by default
-              initHRVTracker('weekly');
             }, 100); // Small delay to ensure the tab is fully shown
           } else if (tabEl.id === 'mood-tab') {
             setTimeout(() => {
               loadMoodHistory();
-              // Initialize mood tracker with weekly data by default
               initMoodTracker('weekly');
             }, 100);
+          } else if (tabEl.id === 'hrv-tab') {
+            setTimeout(() => {
+              initHRVTracker('weekly');
+            }, 100);
           }
+        });
+      });
+      
+      // Set up bottom navigation
+      const bottomNavItems = document.querySelectorAll('.nav-item-bottom');
+      bottomNavItems.forEach(item => {
+        item.addEventListener('click', event => {
+          event.preventDefault();
+          
+          // Remove active class from all items
+          bottomNavItems.forEach(navItem => {
+            navItem.classList.remove('active');
+          });
+          
+          // Add active class to clicked item
+          item.classList.add('active');
+          
+          // Get the tab ID from the nav item ID
+          const tabId = item.id.replace('-nav', '-tab');
+          
+          // Trigger click on the corresponding tab
+          document.getElementById(tabId)?.click();
         });
       });
       
