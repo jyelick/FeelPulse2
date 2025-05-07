@@ -1,146 +1,226 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
+const { Pool } = require('pg');
+const bodyParser = require('body-parser');
 
+// Create Express app
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-// Serve static files
-app.use(express.static('public'));
-app.use(express.json());
-
-// Mock data for API responses
-const mockHRVData = Array.from({ length: 30 }, (_, i) => {
-  const date = new Date();
-  date.setDate(date.getDate() - i);
-  
-  // Baseline HRV with some random variation
-  let value = 50 + Math.random() * 20;
-  
-  // Add a simulated trend
-  if (i < 5) {
-    value = value - (4 - i) * 5;
+// Database connection
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
   }
-  
-  // Add some noise
-  value = value + (Math.random() * 10 - 5);
-  
-  // Ensure reasonable values (ms)
-  value = Math.max(20, Math.min(100, value));
-  
-  return {
-    date: date.toISOString().split('T')[0],
-    value: Math.round(value * 10) / 10, // Round to 1 decimal place
-    sourceName: 'Apple Health',
-  };
 });
 
-// Mock mood data
-const moodData = [
-  { date: '2025-05-07', mood: 'happy', notes: 'Great day at work!' },
-  { date: '2025-05-06', mood: 'neutral', notes: 'Feeling okay, nothing special.' },
-  { date: '2025-05-05', mood: 'sad', notes: 'Stressed about project deadline.' },
-  { date: '2025-05-04', mood: 'happy', notes: 'Weekend with friends.' },
-  { date: '2025-05-03', mood: 'excited', notes: 'Started a new book!' }
-];
+// Middleware
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// User preferences and settings
-let userSettings = {
-  hasDiagnosis: true,
-  diagnosisType: 'anxiety',
-  consentGiven: true,
-  privacyConsentGiven: true,
-  notificationsEnabled: true,
-  darkMode: false
-};
-
-// API endpoint for HRV data
-app.get('/api/hrv', (req, res) => {
-  const days = parseInt(req.query.days) || 30;
-  res.json(mockHRVData.slice(0, days));
+// Routes
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
 });
 
-// API endpoint for latest HRV
-app.get('/api/hrv/latest', (req, res) => {
-  res.json(mockHRVData[0]);
-});
-
-// API endpoint for mood data
-app.get('/api/mood', (req, res) => {
-  res.json(moodData);
-});
-
-// API endpoint for saving mood entry
-app.post('/api/mood', (req, res) => {
-  const { date, mood, notes } = req.body;
-  
-  // Remove any existing entry for this date
-  const existingIndex = moodData.findIndex(entry => entry.date === date);
-  if (existingIndex !== -1) {
-    moodData.splice(existingIndex, 1);
+// API route to get HRV data
+app.get('/api/hrv', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT * FROM hrv_data 
+      ORDER BY timestamp DESC 
+      LIMIT 7
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
-  
-  // Add new entry
-  moodData.unshift({ date, mood, notes });
-  
-  res.json({ success: true });
 });
 
-// API endpoint for user settings
-app.get('/api/settings', (req, res) => {
-  res.json(userSettings);
-});
-
-// API endpoint for updating user settings
-app.post('/api/settings', (req, res) => {
-  userSettings = { ...userSettings, ...req.body };
-  res.json({ success: true });
-});
-
-// API endpoint for stress detection
-app.get('/api/stress', (req, res) => {
-  const latestHRV = mockHRVData[0].value;
-  
-  let stressLevel;
-  if (latestHRV < 30) {
-    stressLevel = 'high';
-  } else if (latestHRV < 50) {
-    stressLevel = 'moderate';
-  } else {
-    stressLevel = 'low';
+// API route to get mood entries
+app.get('/api/mood', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT * FROM mood_entries 
+      ORDER BY timestamp DESC 
+      LIMIT 7
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
-  
-  res.json({
-    stressLevel,
-    hrvValue: latestHRV,
-    recommendation: getRecommendation(stressLevel, userSettings.diagnosisType)
-  });
 });
 
-function getRecommendation(stressLevel, diagnosisType) {
-  if (stressLevel === 'high') {
-    if (diagnosisType === 'anxiety') {
-      return 'Your HRV indicates high stress. Try a 5-minute breathing exercise.';
-    } else if (diagnosisType === 'depression') {
-      return 'Your HRV indicates high stress. Consider reaching out to a friend or going for a short walk.';
-    } else if (diagnosisType === 'bipolar') {
-      return 'Your HRV indicates high stress. Try a grounding exercise and check in with your support system.';
-    } else {
-      return 'Your HRV indicates high stress. Take a moment for self-care.';
+// API route to save a mood entry
+app.post('/api/mood', async (req, res) => {
+  try {
+    const { mood, notes, userId = 1 } = req.body;
+    
+    const result = await pool.query(`
+      INSERT INTO mood_entries (user_id, mood, notes) 
+      VALUES ($1, $2, $3) 
+      RETURNING *
+    `, [userId, mood, notes]);
+    
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// API route to save HRV data
+app.post('/api/hrv', async (req, res) => {
+  try {
+    const { value, sourceName = 'Manual', userId = 1 } = req.body;
+    
+    const result = await pool.query(`
+      INSERT INTO hrv_data (user_id, value, source_name) 
+      VALUES ($1, $2, $3) 
+      RETURNING *
+    `, [userId, value, sourceName]);
+    
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// API route to get user settings
+app.get('/api/settings/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT has_diagnosis, diagnosis_type, notifications_enabled, dark_mode 
+      FROM users 
+      WHERE id = $1
+    `, [userId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
     }
-  } else if (stressLevel === 'moderate') {
-    return 'Your stress level is moderate. Consider taking a short break.';
-  } else {
-    return 'Your stress level is low. Keep up the good work!';
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// API route to update user settings
+app.put('/api/settings/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { hasDiagnosis, diagnosisType, notificationsEnabled, darkMode } = req.body;
+    
+    const result = await pool.query(`
+      UPDATE users 
+      SET has_diagnosis = $1, 
+          diagnosis_type = $2, 
+          notifications_enabled = $3, 
+          dark_mode = $4 
+      WHERE id = $5 
+      RETURNING *
+    `, [hasDiagnosis, diagnosisType, notificationsEnabled, darkMode, userId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Initialize database tables
+async function initializeDatabase() {
+  try {
+    // Create tables if they don't exist
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        has_diagnosis BOOLEAN DEFAULT FALSE,
+        diagnosis_type VARCHAR(50),
+        notifications_enabled BOOLEAN DEFAULT TRUE,
+        dark_mode BOOLEAN DEFAULT FALSE
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS hrv_data (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        value REAL NOT NULL,
+        timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
+        source_name VARCHAR(100) DEFAULT 'Manual',
+        metadata JSONB
+      )
+    `);
+    
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS mood_entries (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        mood VARCHAR(20) NOT NULL,
+        notes TEXT,
+        timestamp TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    // Check if default user exists
+    const userResult = await pool.query('SELECT * FROM users WHERE id = 1');
+    
+    if (userResult.rows.length === 0) {
+      // Create default user if none exists
+      await pool.query(`
+        INSERT INTO users (username, password_hash, has_diagnosis, diagnosis_type)
+        VALUES ('demo_user', 'not_a_real_hash', TRUE, 'anxiety')
+      `);
+      
+      // Add some initial HRV data
+      await pool.query(`
+        INSERT INTO hrv_data (user_id, value, source_name, timestamp)
+        VALUES 
+          (1, 52.3, 'Apple Health', NOW() - INTERVAL '0 days'),
+          (1, 48.7, 'Apple Health', NOW() - INTERVAL '1 days'),
+          (1, 41.2, 'Apple Health', NOW() - INTERVAL '2 days'),
+          (1, 43.5, 'Apple Health', NOW() - INTERVAL '3 days'),
+          (1, 45.8, 'Apple Health', NOW() - INTERVAL '4 days'),
+          (1, 50.2, 'Apple Health', NOW() - INTERVAL '5 days'),
+          (1, 52.1, 'Apple Health', NOW() - INTERVAL '6 days')
+      `);
+      
+      // Add some initial mood entries
+      await pool.query(`
+        INSERT INTO mood_entries (user_id, mood, notes, timestamp)
+        VALUES 
+          (1, 'happy', 'Great day at work!', NOW() - INTERVAL '0 days'),
+          (1, 'neutral', 'Feeling okay, nothing special.', NOW() - INTERVAL '1 days'),
+          (1, 'sad', 'Stressed about project deadline.', NOW() - INTERVAL '2 days'),
+          (1, 'happy', 'Weekend with friends.', NOW() - INTERVAL '3 days'),
+          (1, 'excited', 'Started a new book!', NOW() - INTERVAL '4 days')
+      `);
+    }
+    
+    console.log('Database initialized successfully');
+  } catch (err) {
+    console.error('Database initialization error:', err);
   }
 }
 
-// Serve demo page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`HRV & Mood Tracker demo server running at http://localhost:${PORT}`);
+// Initialize database and start the server
+initializeDatabase().then(() => {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
