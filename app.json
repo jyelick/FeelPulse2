@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "HRV Mood Tracker",
+    "slug": "hrv-mood-tracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourdomain.hrvmoodtracker",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "This app requires access to your health data to track your heart rate variability (HRV) over time to help you monitor stress levels.",
+        "NSHealthUpdateUsageDescription": "This app requires permission to write to your health data."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
