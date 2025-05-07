@@ -1079,13 +1079,61 @@
           if (tabEl.id === 'stats-tab') {
             setTimeout(() => {
               initCombinedChart();
+              // Initialize HRV tracker with weekly data by default
+              initHRVTracker('weekly');
             }, 100); // Small delay to ensure the tab is fully shown
           } else if (tabEl.id === 'mood-tab') {
             setTimeout(() => {
               loadMoodHistory();
+              // Initialize mood tracker with weekly data by default
+              initMoodTracker('weekly');
             }, 100);
           }
         });
+      });
+      
+      // Set up mood tracker period buttons
+      document.getElementById('weekly-mood-btn')?.addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('monthly-mood-btn').classList.remove('active');
+        document.getElementById('yearly-mood-btn').classList.remove('active');
+        initMoodTracker('weekly');
+      });
+      
+      document.getElementById('monthly-mood-btn')?.addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('weekly-mood-btn').classList.remove('active');
+        document.getElementById('yearly-mood-btn').classList.remove('active');
+        initMoodTracker('monthly');
+      });
+      
+      document.getElementById('yearly-mood-btn')?.addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('weekly-mood-btn').classList.remove('active');
+        document.getElementById('monthly-mood-btn').classList.remove('active');
+        initMoodTracker('yearly');
+      });
+      
+      // Set up HRV tracker period buttons
+      document.getElementById('weekly-hrv-btn')?.addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('monthly-hrv-btn').classList.remove('active');
+        document.getElementById('yearly-hrv-btn').classList.remove('active');
+        initHRVTracker('weekly');
+      });
+      
+      document.getElementById('monthly-hrv-btn')?.addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('weekly-hrv-btn').classList.remove('active');
+        document.getElementById('yearly-hrv-btn').classList.remove('active');
+        initHRVTracker('monthly');
+      });
+      
+      document.getElementById('yearly-hrv-btn')?.addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('weekly-hrv-btn').classList.remove('active');
+        document.getElementById('monthly-hrv-btn').classList.remove('active');
+        initHRVTracker('yearly');
       });
     });
   </script>
