@@ -462,11 +462,20 @@
       
       // Load HRV data and update chart
       function loadHRVData() {
-        // Use mock data directly
+        // Make sure we have HRV data
+        if (!hrvData || !hrvData.length) {
+          console.warn('No HRV data available');
+          return;
+        }
+        
+        // Update the chart
         updateHRVChart();
         
-        // Update latest HRV display
-        document.getElementById('latestHRV').textContent = hrvData[0].value;
+        // Update latest HRV display if element exists
+        const latestHRVElement = document.getElementById('latestHRV');
+        if (latestHRVElement) {
+          latestHRVElement.textContent = hrvData[0].value;
+        }
         
         // Determine stress level based on latest HRV
         const latestHRV = hrvData[0].value;
@@ -486,16 +495,37 @@
         }
         
         const stressElement = document.getElementById('stressLevel');
-        stressElement.textContent = stressLevel.charAt(0).toUpperCase() + stressLevel.slice(1);
-        stressElement.className = '';
-        stressElement.classList.add('stress-' + stressLevel);
+        if (stressElement) {
+          stressElement.textContent = stressLevel.charAt(0).toUpperCase() + stressLevel.slice(1);
+          stressElement.className = '';
+          stressElement.classList.add('stress-' + stressLevel);
+        }
         
-        document.getElementById('recommendation').textContent = recommendation;
+        const recommendationElement = document.getElementById('recommendation');
+        if (recommendationElement) {
+          recommendationElement.textContent = recommendation;
+        }
       }
       
       // Update HRV chart
       function updateHRVChart() {
-        const ctx = document.getElementById('hrvChart').getContext('2d');
+        const chartElement = document.getElementById('hrvChart');
+        if (!chartElement) {
+          console.warn('HRV chart element not found');
+          return;
+        }
+        
+        // Clear any existing chart (to prevent errors on re-rendering)
+        if (window.hrvChartInstance) {
+          window.hrvChartInstance.destroy();
+        }
+        
+        const ctx = chartElement.getContext('2d');
+        
+        if (!hrvData || !hrvData.length) {
+          console.warn('No HRV data available for chart');
+          return;
+        }
         
         const labels = hrvData.map(item => {
           const date = new Date(item.date);
@@ -504,7 +534,13 @@
         
         const values = hrvData.map(item => item.value);
         
-        new Chart(ctx, {
+        // Check if we have valid values
+        if (!values.length || values.some(isNaN)) {
+          console.warn('Invalid HRV values for chart');
+          return;
+        }
+        
+        window.hrvChartInstance = new Chart(ctx, {
           type: 'line',
           data: {
             labels: labels,
@@ -539,8 +575,12 @@
       // Load mood history
       function loadMoodHistory() {
         const moodHistoryElement = document.getElementById('moodHistory');
+        if (!moodHistoryElement) {
+          console.warn('Mood history element not found');
+          return;
+        }
         
-        if (moodData.length === 0) {
+        if (!moodData || moodData.length === 0) {
           moodHistoryElement.innerHTML = '<p class="text-center">No mood entries yet. Start tracking your mood!</p>';
           return;
         }
@@ -548,17 +588,36 @@
         let html = '<div class="list-group">';
         
         moodData.forEach(entry => {
+          // Default emoji
           let emoji = '🙂';
-          switch(entry.mood) {
-            case 'sad': emoji = '😢'; break;
-            case 'meh': emoji = '😐'; break;
-            case 'neutral': emoji = '🙂'; break;
-            case 'happy': emoji = '😄'; break;
-            case 'excited': emoji = '🤩'; break;
+          
+          // Safely handle mood property
+          if (entry.mood) {
+            switch(entry.mood) {
+              case 'sad': emoji = '😢'; break;
+              case 'meh': emoji = '😐'; break;
+              case 'neutral': emoji = '🙂'; break;
+              case 'happy': emoji = '😄'; break;
+              case 'excited': emoji = '🤩'; break;
+            }
           }
           
-          const date = new Date(entry.date);
-          const formattedDate = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+          // Safely format date
+          let formattedDate = 'Unknown date';
+          try {
+            if (entry.date) {
+              const date = new Date(entry.date);
+              if (!isNaN(date.getTime())) {
+                formattedDate = date.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  month: 'short', 
+                  day: 'numeric' 
+                });
+              }
+            }
+          } catch (error) {
+            console.warn('Error formatting date:', error);
+          }
           
           html += `
             <div class="list-group-item">
@@ -584,9 +643,14 @@
         document.getElementById('darkModeEnabled').checked = userSettings.darkMode;
         
         const diagnosisContainer = document.getElementById('diagnosisTypeContainer');
-        diagnosisContainer.style.display = userSettings.hasDiagnosis ? 'block' : 'none';
+        if (diagnosisContainer) {
+          diagnosisContainer.style.display = userSettings.hasDiagnosis ? 'block' : 'none';
+        }
         
-        updateDiagnosisDisplay();
+        // Only call updateDiagnosisDisplay if we have HRV data loaded
+        if (hrvData && hrvData.length > 0) {
+          updateDiagnosisDisplay();
+        }
       }
       
       // Update diagnosis display on home page
@@ -620,7 +684,24 @@
       
       // Initialize combined HRV and mood chart
       function initCombinedChart() {
-        const ctx = document.getElementById('combinedChart').getContext('2d');
+        const chartElement = document.getElementById('combinedChart');
+        if (!chartElement) {
+          console.warn('Combined chart element not found');
+          return;
+        }
+        
+        // Clear any existing chart (to prevent errors on re-rendering)
+        if (window.combinedChartInstance) {
+          window.combinedChartInstance.destroy();
+        }
+        
+        const ctx = chartElement.getContext('2d');
+        
+        // Make sure we have data
+        if (!hrvData || !hrvData.length || !moodData) {
+          console.warn('Missing data for chart');
+          return;
+        }
         
         // Process HRV data
         const dates = hrvData.map(item => item.date);
@@ -647,7 +728,7 @@
           return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         });
         
-        new Chart(ctx, {
+        window.combinedChartInstance = new Chart(ctx, {
           type: 'line',
           data: {
             labels: formattedDates,
