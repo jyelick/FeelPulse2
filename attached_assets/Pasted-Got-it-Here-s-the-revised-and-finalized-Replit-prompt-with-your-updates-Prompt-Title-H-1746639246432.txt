@@ -1,0 +1,50 @@
+Got it! Here's the revised and finalized Replit prompt with your updates:
+
+---
+
+**Prompt Title:** *HRV + Mood Tracker App with Apple Health Integration*
+
+**Description:**
+
+Create a mobile app that monitors Heart Rate Variability (HRV) over a 5-day rolling window using data from Apple HealthKit. The app will track stress accumulation based on HRV trends and prompt users to focus on self-care when needed. Users can also log their mood daily using a smiley face scale, and future integrations will allow importing mood data from popular tracking apps.
+
+**Core Features:**
+
+1. **Apple Health HRV Integration:**
+
+   * Automatically import daily HRV data from Apple HealthKit with user permission.
+   * Display HRV values on a 5-day rolling graph.
+   * Sync with Apple HealthKit regularly to ensure up-to-date data.
+
+2. **Stress Detection & Self-Care Prompts:**
+
+   * Analyze HRV trends to detect signs of accumulated stress (e.g., sustained decrease or irregular patterns).
+   * Display non-judgmental, supportive messages like:
+     **"Your stress levels appear to be accumulating. Consider prioritizing self-care and stress-relieving activities over the next few days."**
+
+3. **Mood Tracking (Smiley Face UI):**
+
+   * Include a simple daily check-in using 5 emoji-style smiley faces (ranging from very sad to very happy).
+   * Visualize mood trends alongside HRV data for easy pattern recognition.
+
+4. **Future-Ready Mood App Integration:**
+
+   * Prepare the app architecture to support importing mood data from apps like Daylio, Bearable, and eMoods via CSV/JSON/API.
+   * Mock this feature in the MVP version to show proof of concept.
+
+**Stretch Features (Optional):**
+
+* Streak tracking for daily mood check-ins.
+* Export data (CSV/JSON) for personal review or sharing with a clinician.
+* Simple onboarding explaining HRV and how to use the app.
+
+**Tech Stack:**
+
+* **Platform:** iOS (Apple HealthKit required)
+* **Frontend:** React Native (with Expo or bare workflow)
+* **HealthKit Integration:** `react-native-health` or `expo-health`
+* **Graphing Library:** Victory Native, Recharts, or similar
+
+---
+
+Would you like a version of this written for a GitHub README or help creating user flow wireframes?
