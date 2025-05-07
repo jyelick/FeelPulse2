@@ -54,6 +54,10 @@
       font-weight: bold;
     }
     
+    .nav-item-bottom:hover {
+      color: #66bb6a;
+    }
+    
     .nav-item-bottom i {
       font-size: 1.5rem;
       margin-bottom: 2px;
@@ -293,6 +297,7 @@
               <select id="diagnosisTypeSelect" class="form-select">
                 <option value="depression">Depression</option>
                 <option value="anxiety">Anxiety</option>
+                <option value="panic">Panic Disorder</option>
                 <option value="bipolar">Bipolar Disorder</option>
                 <option value="other">Other</option>
               </select>
@@ -833,9 +838,13 @@
         
         if (latestHRV < 30) {
           stressLevel = 'high';
-          recommendation = userSettings.diagnosisType === 'anxiety' ? 
-            'Your HRV indicates high stress. Try a 5-minute breathing exercise.' :
-            'Your HRV indicates high stress. Take a moment for self-care.';
+          if (userSettings.diagnosisType === 'anxiety') {
+            recommendation = 'Your HRV indicates high stress. Try a 5-minute breathing exercise.';
+          } else if (userSettings.diagnosisType === 'panic') {
+            recommendation = 'Your HRV indicates high stress. Practice grounding techniques: focus on 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste.';
+          } else {
+            recommendation = 'Your HRV indicates high stress. Take a moment for self-care.';
+          }
         } else if (latestHRV < 50) {
           stressLevel = 'moderate';
           recommendation = 'Your stress level is moderate. Consider taking a short break.';
@@ -1021,6 +1030,8 @@
               recommendation = 'Your HRV indicates high stress. Consider a short walk outside.';
             } else if (userSettings.diagnosisType === 'bipolar') {
               recommendation = 'Your HRV indicates high stress. Check your mood tracking and consider your management plan.';
+            } else if (userSettings.diagnosisType === 'panic') {
+              recommendation = 'Your HRV indicates high stress. Practice grounding techniques: focus on 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste.';
             } else {
               recommendation = 'Your HRV indicates high stress. Take a moment for self-care.';
             }
