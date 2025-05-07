@@ -591,24 +591,31 @@
       
       // Update diagnosis display on home page
       function updateDiagnosisDisplay() {
-        const element = document.getElementById('diagnosisType');
+        // Since we removed the diagnosis card from the home page,
+        // this function now only needs to handle diagnosis settings
+        // No need to update removed elements
         
-        if (!userSettings.hasDiagnosis) {
-          element.style.display = 'none';
-          return;
+        // Instead, let's update any recommendations based on diagnosis
+        if (hrvData && hrvData.length > 0) {
+          const latestHRV = hrvData[0].value;
+          let recommendation = "";
+          
+          if (latestHRV < 30) {
+            if (userSettings.diagnosisType === 'anxiety') {
+              recommendation = 'Your HRV indicates high stress. Try a 5-minute breathing exercise.';
+            } else if (userSettings.diagnosisType === 'depression') {
+              recommendation = 'Your HRV indicates high stress. Consider a short walk outside.';
+            } else if (userSettings.diagnosisType === 'bipolar') {
+              recommendation = 'Your HRV indicates high stress. Check your mood tracking and consider your management plan.';
+            } else {
+              recommendation = 'Your HRV indicates high stress. Take a moment for self-care.';
+            }
+          }
+          
+          if (recommendation && document.getElementById('recommendation')) {
+            document.getElementById('recommendation').textContent = recommendation;
+          }
         }
-        
-        element.style.display = 'inline-block';
-        
-        let diagnosisText = userSettings.diagnosisType;
-        switch(userSettings.diagnosisType) {
-          case 'depression': diagnosisText = 'Depression'; break;
-          case 'anxiety': diagnosisText = 'Anxiety'; break;
-          case 'bipolar': diagnosisText = 'Bipolar Disorder'; break;
-          case 'other': diagnosisText = 'Mood Disorder'; break;
-        }
-        
-        element.textContent = diagnosisText;
       }
       
       // Initialize combined HRV and mood chart
