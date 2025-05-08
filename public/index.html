@@ -21,11 +21,22 @@
       --danger: #e53935;
       --warning: #ff9800;
       --success: #4caf50;
-      --border-radius: 16px;
-      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.05);
-      --transition: all 0.2s ease-in-out;
+      --border-radius: 18px;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.06), 0 5px 10px rgba(0, 0, 0, 0.04);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(102, 187, 106, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(102, 187, 106, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(102, 187, 106, 0); }
     }
     
     body {
@@ -36,21 +47,38 @@
       background-color: var(--background);
       color: var(--text-primary);
       line-height: 1.6;
+      font-weight: 400;
+      letter-spacing: -0.015em;
     }
     
     .navbar {
-      background: linear-gradient(90deg, var(--primary-dark), var(--primary)) !important;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary)) !important;
       box-shadow: var(--shadow-md);
-      padding: 0.8rem 0;
+      padding: 1rem 0;
       border: none !important;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .navbar::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+      opacity: 0.5;
     }
     
     .navbar-brand {
-      font-weight: 700;
+      font-weight: 800;
       font-size: 1.5rem;
       letter-spacing: -0.5px;
       color: white !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      position: relative;
+      z-index: 1;
     }
     
     /* Bottom Navigation */
@@ -145,44 +173,84 @@
     
     .card:hover {
       box-shadow: var(--shadow-lg);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
     }
     
     .card-header {
-      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
       color: white;
-      font-weight: 600;
+      font-weight: 700;
       padding: 16px 20px;
       font-size: 1.1rem;
       border-bottom: none;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card-header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100px;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 100%);
+      transform: skewX(-20deg) translateX(60px);
     }
     
     .card-body {
-      padding: 20px;
+      padding: 22px;
+      animation: fadeIn 0.6s ease-out;
     }
     
     .btn-success {
-      background-color: var(--primary);
-      border-color: var(--primary);
-      border-radius: 10px;
-      padding: 8px 20px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 12px;
+      padding: 10px 22px;
       font-weight: 600;
       letter-spacing: 0.3px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(46, 125, 50, 0.25);
       transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .btn-success::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+      transition: all 0.8s ease;
+      z-index: -1;
+    }
+    
+    .btn-success:hover::before {
+      left: 100%;
     }
     
     .btn-success:hover, .btn-success:focus {
-      background-color: var(--primary-dark);
-      border-color: var(--primary-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      background-image: linear-gradient(135deg, var(--primary-dark), var(--primary-dark));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(46, 125, 50, 0.3);
+    }
+    
+    .btn-success:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 5px rgba(46, 125, 50, 0.2);
     }
     
     .btn-outline-success {
       color: var(--primary);
-      border-color: var(--primary-light);
-      background-color: transparent;
+      border: 1px solid var(--primary-light);
+      background-color: rgba(102, 187, 106, 0.05);
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-weight: 500;
       transition: var(--transition);
     }
     
@@ -190,30 +258,51 @@
       background-color: var(--primary);
       border-color: var(--primary);
       color: white;
+      box-shadow: 0 4px 8px rgba(46, 125, 50, 0.15);
     }
     
     .form-control {
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      padding: 12px 15px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 13px 16px;
       transition: var(--transition);
+      background-color: rgba(249, 250, 251, 0.5);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.015);
+      font-size: 0.95rem;
     }
     
     .form-control:focus {
-      box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.25);
+      box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0);
       border-color: var(--primary-light);
+      background-color: #fff;
+    }
+    
+    .form-control::placeholder {
+      color: #aaa;
+      font-size: 0.9rem;
     }
     
     .form-select {
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      padding: 12px 15px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 13px 16px;
       height: auto;
+      background-color: rgba(249, 250, 251, 0.5);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.015);
+      font-size: 0.95rem;
+      transition: var(--transition);
     }
     
     .form-select:focus {
-      box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.25);
+      box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0);
       border-color: var(--primary-light);
+      background-color: #fff;
+    }
+    
+    .form-label {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 8px;
     }
     
     .mood-emoji {
@@ -1170,9 +1259,17 @@
               label: 'HRV (ms)',
               data: values,
               borderColor: '#2e7d32',
-              backgroundColor: 'rgba(46, 125, 50, 0.1)',
+              backgroundColor: 'rgba(46, 125, 50, 0.2)',
               tension: 0.4,
-              fill: true
+              fill: true,
+              pointRadius: 6,
+              pointBackgroundColor: 'white',
+              pointBorderColor: '#2e7d32',
+              pointBorderWidth: 2,
+              pointHoverRadius: 8,
+              pointHoverBackgroundColor: '#2e7d32',
+              pointHoverBorderColor: 'white',
+              borderWidth: 3
             }]
           },
           options: {
@@ -1181,13 +1278,55 @@
             plugins: {
               legend: {
                 display: false
+              },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#2e7d32',
+                bodyColor: '#333',
+                bodyFont: {
+                  weight: 'bold'
+                },
+                displayColors: false,
+                borderColor: '#2e7d32',
+                borderWidth: 1,
+                padding: 10,
+                cornerRadius: 6,
+                callbacks: {
+                  label: function(context) {
+                    return `HRV: ${context.parsed.y} ms`;
+                  }
+                }
               }
             },
             scales: {
               y: {
                 beginAtZero: false,
                 min: Math.min(...values) - 5,
-                max: Math.max(...values) + 5
+                max: Math.max(...values) + 5,
+                grid: {
+                  color: 'rgba(200, 200, 200, 0.15)',
+                  drawBorder: false
+                },
+                ticks: {
+                  font: {
+                    size: 11,
+                    weight: '500'
+                  },
+                  padding: 8
+                }
+              },
+              x: {
+                grid: {
+                  display: false,
+                  drawBorder: false
+                },
+                ticks: {
+                  font: {
+                    size: 11,
+                    weight: '500'
+                  },
+                  padding: 8
+                }
               }
             }
           }
@@ -1359,17 +1498,33 @@
                 label: 'HRV (ms)',
                 data: hrvValues,
                 borderColor: '#2e7d32',
-                backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                backgroundColor: 'rgba(46, 125, 50, 0.2)',
                 tension: 0.4,
-                yAxisID: 'y'
+                yAxisID: 'y',
+                pointRadius: 6,
+                pointBackgroundColor: 'white',
+                pointBorderColor: '#2e7d32',
+                pointBorderWidth: 2,
+                pointHoverRadius: 8,
+                pointHoverBackgroundColor: '#2e7d32',
+                pointHoverBorderColor: 'white',
+                borderWidth: 3,
+                fill: true
               },
               {
                 label: 'Mood',
                 data: moodValues,
                 borderColor: '#66bb6a',
-                backgroundColor: 'rgba(102, 187, 106, 0.1)',
+                backgroundColor: 'rgba(102, 187, 106, 0.0)',
                 tension: 0.4,
                 pointRadius: 6,
+                pointBackgroundColor: 'white',
+                pointBorderColor: '#66bb6a',
+                pointBorderWidth: 2,
+                pointHoverRadius: 8,
+                pointHoverBackgroundColor: '#66bb6a',
+                pointHoverBorderColor: 'white',
+                borderWidth: 3,
                 yAxisID: 'y1'
               }
             ]
@@ -1380,32 +1535,113 @@
               mode: 'index',
               intersect: false,
             },
+            plugins: {
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#2e7d32',
+                bodyColor: '#333',
+                bodyFont: {
+                  weight: 'bold'
+                },
+                displayColors: true,
+                borderColor: '#e0e0e0',
+                borderWidth: 1,
+                padding: 12,
+                cornerRadius: 8,
+                callbacks: {
+                  label: function(context) {
+                    if (context.dataset.label === 'Mood') {
+                      const value = context.parsed.y;
+                      const labels = ['', 'Sad', 'Meh', 'Neutral', 'Happy', 'Excited', ''];
+                      return `Mood: ${labels[value]}`;
+                    } else {
+                      return `HRV: ${context.parsed.y} ms`;
+                    }
+                  }
+                }
+              },
+              legend: {
+                labels: {
+                  usePointStyle: true,
+                  boxWidth: 8,
+                  boxHeight: 8,
+                  padding: 20,
+                  font: {
+                    weight: '600'
+                  }
+                }
+              }
+            },
             scales: {
               y: {
                 title: {
                   display: true,
-                  text: 'HRV (ms)'
+                  text: 'HRV (ms)',
+                  font: {
+                    weight: '600',
+                    size: 14
+                  },
+                  padding: {
+                    bottom: 10
+                  }
                 },
                 position: 'left',
+                grid: {
+                  color: 'rgba(200, 200, 200, 0.15)',
+                  drawBorder: false
+                },
+                ticks: {
+                  padding: 10,
+                  font: {
+                    size: 12,
+                    weight: '500'
+                  }
+                }
               },
               y1: {
                 title: {
                   display: true,
-                  text: 'Mood'
+                  text: 'Mood',
+                  font: {
+                    weight: '600',
+                    size: 14
+                  },
+                  padding: {
+                    bottom: 10
+                  }
                 },
                 position: 'right',
                 min: 0,
                 max: 6,
                 ticks: {
                   stepSize: 1,
+                  padding: 10,
+                  font: {
+                    size: 12,
+                    weight: '500'
+                  },
                   callback: function(value) {
                     const labels = ['', 'Sad', 'Meh', 'Neutral', 'Happy', 'Excited', ''];
                     return labels[value];
                   }
                 },
                 grid: {
-                  drawOnChartArea: false,
+                  display: false,
+                  drawBorder: false
                 },
+              },
+              x: {
+                grid: {
+                  display: false,
+                  drawBorder: false
+                },
+                ticks: {
+                  padding: 10,
+                  font: {
+                    size: 12,
+                    weight: '500'
+                  }
+                }
               }
             }
           }
