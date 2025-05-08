@@ -53,32 +53,65 @@
     
     .navbar {
       background: linear-gradient(135deg, var(--primary-dark), var(--primary)) !important;
-      box-shadow: var(--shadow-md);
-      padding: 1rem 0;
+      box-shadow: var(--shadow-lg);
+      padding: 1.2rem 0;
       border: none !important;
       position: relative;
       overflow: hidden;
+      margin-bottom: 5px;
     }
     
     .navbar::before {
       content: '';
       position: absolute;
-      top: -50%;
+      top: -150%;
       left: -50%;
       width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-      opacity: 0.5;
+      height: 300%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+      opacity: 0.7;
+      animation: rotateBg 15s linear infinite;
+    }
+    
+    @keyframes rotateBg {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .navbar::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, 
+        rgba(255,255,255,0) 0%, 
+        rgba(255,255,255,0.3) 20%, 
+        rgba(255,255,255,0.3) 80%, 
+        rgba(255,255,255,0) 100%);
+      opacity: 0.3;
     }
     
     .navbar-brand {
       font-weight: 800;
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       letter-spacing: -0.5px;
       color: white !important;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
       position: relative;
       z-index: 1;
+      display: flex;
+      align-items: center;
+    }
+    
+    .navbar-brand::before {
+      content: '❤';
+      font-size: 1.2rem;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+      display: inline-block;
+      transform-origin: center;
     }
     
     /* Bottom Navigation */
@@ -87,16 +120,19 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background-color: var(--card-bg);
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.07);
       display: flex;
       justify-content: space-around;
       align-items: center;
-      height: 70px;
+      height: 75px;
       z-index: 1000;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      padding: 0 10px;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 0 15px;
+      border-top: 1px solid rgba(0, 0, 0, 0.03);
     }
     
     .nav-item-bottom {
@@ -108,36 +144,61 @@
       height: 100%;
       text-decoration: none;
       color: var(--text-secondary);
-      font-size: 0.7rem;
-      font-weight: 500;
+      font-size: 0.75rem;
+      font-weight: 600;
       padding: 8px 0;
       transition: var(--transition);
+      position: relative;
     }
     
     .nav-item-bottom.active {
       color: var(--primary);
-      position: relative;
+    }
+    
+    .nav-item-bottom.active::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      width: 50%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-light), var(--primary));
+      border-radius: 10px 10px 0 0;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .nav-item-bottom.active i {
+      transform: translateY(-4px);
+      filter: drop-shadow(0 4px 6px rgba(46, 125, 50, 0.4));
+    }
+    
+    .nav-item-bottom::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      width: 0;
+      height: 0;
+      transition: all 0.3s ease;
+      opacity: 0;
     }
     
     .nav-item-bottom.active::after {
-      content: '';
-      position: absolute;
-      bottom: 12px;
+      bottom: 0;
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background-color: var(--primary);
-      animation: pulse 1.5s infinite;
+      animation: pulse 2s infinite;
+      opacity: 1;
     }
     
     @keyframes pulse {
       0% {
         transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.5);
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.6);
       }
       70% {
         transform: scale(1);
-        box-shadow: 0 0 0 5px rgba(46, 125, 50, 0);
+        box-shadow: 0 0 0 6px rgba(46, 125, 50, 0);
       }
       100% {
         transform: scale(0.95);
@@ -147,12 +208,13 @@
     
     .nav-item-bottom:hover {
       color: var(--primary-light);
-      transform: translateY(-2px);
+      transform: translateY(-4px);
     }
     
     .nav-item-bottom i {
-      font-size: 1.5rem;
-      margin-bottom: 4px;
+      font-size: 1.6rem;
+      margin-bottom: 5px;
+      transition: transform 0.3s ease;
     }
     
     .container {
@@ -306,45 +368,112 @@
     }
     
     .mood-emoji {
-      font-size: 2.5rem;
+      font-size: 2.7rem;
       cursor: pointer;
-      margin: 0 10px;
-      opacity: 0.6;
+      margin: 0 12px;
+      opacity: 0.7;
       transition: var(--transition);
       filter: grayscale(40%);
+      position: relative;
+      transform-origin: center;
+      user-select: none;
     }
     
-    .mood-emoji:hover, .mood-emoji.selected {
+    .mood-emoji::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+    
+    .mood-emoji:hover {
       opacity: 1;
-      transform: scale(1.2) rotate(5deg);
+      transform: scale(1.15);
+      filter: grayscale(20%);
+    }
+    
+    .mood-emoji.selected {
+      opacity: 1;
+      transform: scale(1.25);
       filter: grayscale(0%);
+      animation: bounceMood 0.5s ease;
+    }
+    
+    .mood-emoji.selected::after {
+      transform: translateX(-50%) scale(1);
+      animation: pulseGlow 2s infinite;
+    }
+    
+    @keyframes bounceMood {
+      0%, 100% { transform: scale(1.25); }
+      50% { transform: scale(1.35) rotate(5deg); }
     }
     
     .stress-high {
       color: var(--danger);
-      font-weight: 600;
+      font-weight: 700;
+      background: linear-gradient(90deg, rgba(229, 57, 53, 0.1) 0%, rgba(229, 57, 53, 0) 100%);
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
     }
     
     .stress-moderate {
       color: var(--warning);
-      font-weight: 600;
+      font-weight: 700;
+      background: linear-gradient(90deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 152, 0, 0) 100%);
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
     }
     
     .stress-low {
       color: var(--success);
-      font-weight: 600;
+      font-weight: 700;
+      background: linear-gradient(90deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0) 100%);
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
     }
     
     .list-group-item {
-      border-radius: 12px;
-      margin-bottom: 8px;
-      border: 1px solid #f0f0f0;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      transition: var(--transition);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .list-group-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--primary), var(--primary-light));
+      opacity: 0;
       transition: var(--transition);
     }
     
     .list-group-item:hover {
-      background-color: #f9f9f9;
-      transform: translateX(3px);
+      background-color: #fafafa;
+      transform: translateX(3px) translateY(-1px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+    
+    .list-group-item:hover::after {
+      opacity: 1;
     }
     
     #hrvChart {
@@ -408,9 +537,20 @@
           <div class="card-body">
             <div class="row align-items-center">
               <div class="col-md-6">
-                <h5>Your latest HRV: <span id="latestHRV">45.6</span> ms</h5>
-                <p>Stress level: <span id="stressLevel" class="stress-moderate">Moderate</span></p>
-                <p id="recommendation">Consider taking a short break to reduce stress.</p>
+                <div class="mb-4">
+                  <h5 class="text-muted mb-2" style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Your latest HRV</h5>
+                  <div class="d-flex align-items-baseline">
+                    <span id="latestHRV" style="font-size: 2.4rem; font-weight: 700; color: var(--primary-dark);">45.6</span>
+                    <span style="font-size: 1.2rem; margin-left: 5px; color: var(--text-secondary);">ms</span>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <h6 class="text-muted mb-2" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Stress level</h6>
+                  <span id="stressLevel" class="stress-moderate">Moderate</span>
+                </div>
+                <div class="p-3 rounded-3" style="background: rgba(102, 187, 106, 0.08); border-left: 4px solid var(--primary);">
+                  <p id="recommendation" class="mb-0" style="font-size: 0.95rem; color: var(--text-primary);">Consider taking a short break to reduce stress.</p>
+                </div>
               </div>
               <div class="col-md-6">
                 <canvas id="hrvChart"></canvas>
@@ -424,17 +564,21 @@
             Quick Mood Check-in
           </div>
           <div class="card-body text-center">
-            <p>How are you feeling today?</p>
-            <div class="d-flex justify-content-center">
+            <h5 class="mb-4" style="font-weight: 600; color: var(--text-primary);">How are you feeling today?</h5>
+            <div class="d-flex justify-content-center mb-4" style="background: rgba(102, 187, 106, 0.05); padding: 15px; border-radius: 16px;">
               <span class="mood-emoji" data-mood="sad">😢</span>
               <span class="mood-emoji" data-mood="meh">😐</span>
               <span class="mood-emoji" data-mood="neutral">🙂</span>
               <span class="mood-emoji" data-mood="happy">😄</span>
               <span class="mood-emoji" data-mood="excited">🤩</span>
             </div>
-            <div class="mt-3">
-              <textarea id="moodNotes" class="form-control" placeholder="Add notes about your mood (optional)"></textarea>
-              <button id="saveMood" class="btn btn-success mt-2">Save</button>
+            <div class="mt-2">
+              <textarea id="moodNotes" class="form-control" placeholder="Add notes about your mood (optional)" style="min-height: 80px;"></textarea>
+              <div class="text-end">
+                <button id="saveMood" class="btn btn-success mt-3">
+                  <i class="bi bi-check2-circle me-2"></i> Save Mood
+                </button>
+              </div>
             </div>
           </div>
         </div>
