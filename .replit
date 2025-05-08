@@ -25,8 +25,9 @@ args = "node server.js"
 waitForPort = 5000
 
 [deployment]
-run = ["sh", "-c", "npx expo start --web --port=5000"]
+run = ["sh", "-c", "npx expo start --web --port=5000 --non-interactive"]
 deploymentTarget = "cloudrun"
+build = ["sh", "-c", "npx expo install && npm install"]
 
 [[ports]]
 localPort = 5000
