@@ -8,16 +8,49 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    :root {
+      --primary: #2e7d32;
+      --primary-light: #66bb6a;
+      --primary-dark: #1b5e20;
+      --accent: #43a047;
+      --surface: #fafafa;
+      --background: #f5f9f5;
+      --card-bg: #ffffff;
+      --text-primary: #263238;
+      --text-secondary: #546e7a;
+      --danger: #e53935;
+      --warning: #ff9800;
+      --success: #4caf50;
+      --border-radius: 16px;
+      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.05);
+      --transition: all 0.2s ease-in-out;
+    }
+    
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
       margin: 0;
       padding: 0;
       padding-bottom: 80px; /* Space for bottom navigation */
-      background-color: #f8f9fa;
+      background-color: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
     }
+    
+    .navbar {
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary)) !important;
+      box-shadow: var(--shadow-md);
+      padding: 0.8rem 0;
+      border: none !important;
+    }
+    
     .navbar-brand {
-      font-weight: bold;
-      color: #2e7d32 !important;
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+      color: white !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
     
     /* Bottom Navigation */
@@ -26,14 +59,16 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background-color: white;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      background-color: var(--card-bg);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
       display: flex;
       justify-content: space-around;
       align-items: center;
-      height: 65px;
+      height: 70px;
       z-index: 1000;
-      border-top: 1px solid #eee;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 0 10px;
     }
     
     .nav-item-bottom {
@@ -44,77 +79,204 @@
       flex: 1;
       height: 100%;
       text-decoration: none;
-      color: #6c757d;
+      color: var(--text-secondary);
       font-size: 0.7rem;
+      font-weight: 500;
       padding: 8px 0;
+      transition: var(--transition);
     }
     
     .nav-item-bottom.active {
-      color: #2e7d32;
-      font-weight: bold;
+      color: var(--primary);
+      position: relative;
+    }
+    
+    .nav-item-bottom.active::after {
+      content: '';
+      position: absolute;
+      bottom: 12px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.5);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 5px rgba(46, 125, 50, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(46, 125, 50, 0);
+      }
     }
     
     .nav-item-bottom:hover {
-      color: #66bb6a;
+      color: var(--primary-light);
+      transform: translateY(-2px);
     }
     
     .nav-item-bottom i {
       font-size: 1.5rem;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
+    
     .container {
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
     }
+    
     .card {
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 24px;
       overflow: hidden;
+      border: none;
+      transition: var(--transition);
+      background-color: var(--card-bg);
     }
+    
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    
     .card-header {
-      background-color: #2e7d32;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
       color: white;
-      font-weight: bold;
+      font-weight: 600;
+      padding: 16px 20px;
+      font-size: 1.1rem;
+      border-bottom: none;
     }
+    
+    .card-body {
+      padding: 20px;
+    }
+    
+    .btn-success {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      border-radius: 10px;
+      padding: 8px 20px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: var(--transition);
+    }
+    
+    .btn-success:hover, .btn-success:focus {
+      background-color: var(--primary-dark);
+      border-color: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-outline-success {
+      color: var(--primary);
+      border-color: var(--primary-light);
+      background-color: transparent;
+      transition: var(--transition);
+    }
+    
+    .btn-outline-success:hover, .btn-outline-success.active {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    
+    .form-control {
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      padding: 12px 15px;
+      transition: var(--transition);
+    }
+    
+    .form-control:focus {
+      box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.25);
+      border-color: var(--primary-light);
+    }
+    
+    .form-select {
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      padding: 12px 15px;
+      height: auto;
+    }
+    
+    .form-select:focus {
+      box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.25);
+      border-color: var(--primary-light);
+    }
+    
     .mood-emoji {
-      font-size: 2rem;
+      font-size: 2.5rem;
       cursor: pointer;
       margin: 0 10px;
-      opacity: 0.5;
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      opacity: 0.6;
+      transition: var(--transition);
+      filter: grayscale(40%);
     }
+    
     .mood-emoji:hover, .mood-emoji.selected {
       opacity: 1;
-      transform: scale(1.2);
+      transform: scale(1.2) rotate(5deg);
+      filter: grayscale(0%);
     }
+    
     .stress-high {
-      color: #d32f2f;
+      color: var(--danger);
+      font-weight: 600;
     }
+    
     .stress-moderate {
-      color: #f57c00;
+      color: var(--warning);
+      font-weight: 600;
     }
+    
     .stress-low {
-      color: #388e3c;
+      color: var(--success);
+      font-weight: 600;
     }
-    .diagnosis-pill {
-      background-color: #66bb6a;
-      color: #000;
-      font-weight: 500;
-      padding: 5px 12px;
-      border-radius: 16px;
-      display: inline-block;
-      margin-bottom: 15px;
+    
+    .list-group-item {
+      border-radius: 12px;
+      margin-bottom: 8px;
+      border: 1px solid #f0f0f0;
+      transition: var(--transition);
     }
-    .nav-tabs .nav-link.active {
-      color: #2e7d32;
-      font-weight: bold;
-      border-bottom: 2px solid #2e7d32;
+    
+    .list-group-item:hover {
+      background-color: #f9f9f9;
+      transform: translateX(3px);
     }
+    
     #hrvChart {
       width: 100%;
       max-height: 250px;
+    }
+    
+    .btn-group {
+      box-shadow: var(--shadow-sm);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .btn-group .btn {
+      border-radius: 0;
+      font-weight: 500;
+    }
+    
+    .form-check-input:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
     }
   </style>
 </head>
@@ -544,10 +706,17 @@
               label: 'Mood Rating',
               data: data,
               borderColor: '#66bb6a',
-              backgroundColor: 'rgba(102, 187, 106, 0.1)',
+              backgroundColor: 'rgba(102, 187, 106, 0.2)',
               fill: true,
               tension: 0.4,
-              pointRadius: 6
+              pointRadius: 8,
+              pointBackgroundColor: 'white',
+              pointBorderColor: '#66bb6a',
+              pointBorderWidth: 2,
+              pointHoverRadius: 10,
+              pointHoverBackgroundColor: '#66bb6a',
+              pointHoverBorderColor: 'white',
+              borderWidth: 3
             }]
           },
           options: {
@@ -556,19 +725,60 @@
               y: {
                 min: 0,
                 max: 6,
+                grid: {
+                  color: 'rgba(200, 200, 200, 0.15)',
+                  drawBorder: false
+                },
                 ticks: {
                   stepSize: 1,
+                  padding: 10,
+                  font: {
+                    size: 12,
+                    weight: '500'
+                  },
                   callback: function(value) {
                     const labels = ['', 'Sad', 'Meh', 'Neutral', 'Happy', 'Excited', ''];
                     return labels[value];
                   }
                 }
+              },
+              x: {
+                grid: {
+                  display: false,
+                  drawBorder: false
+                },
+                ticks: {
+                  padding: 10,
+                  font: {
+                    size: 12,
+                    weight: '500'
+                  }
+                }
               }
             },
             plugins: {
-              title: {
-                display: true,
-                text: `${period.charAt(0).toUpperCase() + period.slice(1)} Mood Tracking`
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#2e7d32',
+                bodyColor: '#333',
+                bodyFont: {
+                  weight: 'bold'
+                },
+                displayColors: false,
+                borderColor: '#66bb6a',
+                borderWidth: 1,
+                padding: 12,
+                cornerRadius: 8,
+                callbacks: {
+                  label: function(context) {
+                    const value = context.parsed.y;
+                    const labels = ['', 'Sad', 'Meh', 'Neutral', 'Happy', 'Excited', ''];
+                    return `Mood: ${labels[value]}`;
+                  }
+                }
               }
             }
           }
@@ -598,9 +808,17 @@
               label: 'HRV (ms)',
               data: data,
               borderColor: '#2e7d32',
-              backgroundColor: 'rgba(46, 125, 50, 0.1)',
+              backgroundColor: 'rgba(46, 125, 50, 0.2)',
               fill: true,
-              tension: 0.4
+              tension: 0.4,
+              pointRadius: 8,
+              pointBackgroundColor: 'white',
+              pointBorderColor: '#2e7d32',
+              pointBorderWidth: 2,
+              pointHoverRadius: 10,
+              pointHoverBackgroundColor: '#2e7d32',
+              pointHoverBorderColor: 'white',
+              borderWidth: 3
             }]
           },
           options: {
@@ -608,16 +826,64 @@
             scales: {
               y: {
                 beginAtZero: false,
+                grid: {
+                  color: 'rgba(200, 200, 200, 0.15)',
+                  drawBorder: false
+                },
+                ticks: {
+                  padding: 10,
+                  font: {
+                    size: 12,
+                    weight: '500'
+                  }
+                },
                 title: {
                   display: true,
-                  text: 'HRV (ms)'
+                  text: 'HRV (ms)',
+                  font: {
+                    weight: '600',
+                    size: 14
+                  },
+                  padding: {
+                    bottom: 10
+                  }
+                }
+              },
+              x: {
+                grid: {
+                  display: false,
+                  drawBorder: false
+                },
+                ticks: {
+                  padding: 10,
+                  font: {
+                    size: 12,
+                    weight: '500'
+                  }
                 }
               }
             },
             plugins: {
-              title: {
-                display: true,
-                text: `${period.charAt(0).toUpperCase() + period.slice(1)} HRV Tracking`
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#2e7d32',
+                bodyColor: '#333',
+                bodyFont: {
+                  weight: 'bold'
+                },
+                displayColors: false,
+                borderColor: '#2e7d32',
+                borderWidth: 1,
+                padding: 12,
+                cornerRadius: 8,
+                callbacks: {
+                  label: function(context) {
+                    return `HRV: ${context.parsed.y} ms`;
+                  }
+                }
               }
             }
           }
