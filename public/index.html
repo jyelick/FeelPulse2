@@ -928,29 +928,46 @@
           moodTrackerChart.destroy();
         }
         
-        const { labels, data } = processMoodDataForPeriod(moodData, period);
+        const { labels, data, sixMonthAverage } = processMoodDataForPeriod(moodData, period);
         const moodMap = { 'sad': 1, 'meh': 2, 'neutral': 3, 'happy': 4, 'excited': 5 };
+        
+        // Prepare datasets
+        const datasets = [{
+          label: 'Mood Rating',
+          data: data,
+          borderColor: '#66bb6a',
+          backgroundColor: 'rgba(102, 187, 106, 0.2)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 8,
+          pointBackgroundColor: 'white',
+          pointBorderColor: '#66bb6a',
+          pointBorderWidth: 2,
+          pointHoverRadius: 10,
+          pointHoverBackgroundColor: '#66bb6a',
+          pointHoverBorderColor: 'white',
+          borderWidth: 3
+        }];
+        
+        // Add 6-month average line if available
+        if (sixMonthAverage !== null) {
+          datasets.push({
+            label: '6-Month Average',
+            data: Array(labels.length).fill(sixMonthAverage),
+            borderColor: 'rgba(75, 192, 192, 0.8)',
+            borderWidth: 2,
+            borderDash: [6, 4],
+            fill: false,
+            pointRadius: 0,
+            pointHoverRadius: 0
+          });
+        }
         
         moodTrackerChart = new Chart(ctx, {
           type: 'line',
           data: {
             labels: labels,
-            datasets: [{
-              label: 'Mood Rating',
-              data: data,
-              borderColor: '#66bb6a',
-              backgroundColor: 'rgba(102, 187, 106, 0.2)',
-              fill: true,
-              tension: 0.4,
-              pointRadius: 8,
-              pointBackgroundColor: 'white',
-              pointBorderColor: '#66bb6a',
-              pointBorderWidth: 2,
-              pointHoverRadius: 10,
-              pointHoverBackgroundColor: '#66bb6a',
-              pointHoverBorderColor: 'white',
-              borderWidth: 3
-            }]
+            datasets: datasets
           },
           options: {
             responsive: true,
@@ -1031,28 +1048,45 @@
           hrvTrackerChart.destroy();
         }
         
-        const { labels, data } = processHRVDataForPeriod(hrvData, period);
+        const { labels, data, sixMonthAverage } = processHRVDataForPeriod(hrvData, period);
+        
+        // Prepare datasets
+        const datasets = [{
+          label: 'HRV (ms)',
+          data: data,
+          borderColor: '#2e7d32',
+          backgroundColor: 'rgba(46, 125, 50, 0.2)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 8,
+          pointBackgroundColor: 'white',
+          pointBorderColor: '#2e7d32',
+          pointBorderWidth: 2,
+          pointHoverRadius: 10,
+          pointHoverBackgroundColor: '#2e7d32',
+          pointHoverBorderColor: 'white',
+          borderWidth: 3
+        }];
+        
+        // Add 6-month average line if available
+        if (sixMonthAverage !== null) {
+          datasets.push({
+            label: '6-Month Average',
+            data: Array(labels.length).fill(sixMonthAverage),
+            borderColor: 'rgba(75, 192, 192, 0.8)',
+            borderWidth: 2,
+            borderDash: [6, 4],
+            fill: false,
+            pointRadius: 0,
+            pointHoverRadius: 0
+          });
+        }
         
         hrvTrackerChart = new Chart(ctx, {
           type: 'line',
           data: {
             labels: labels,
-            datasets: [{
-              label: 'HRV (ms)',
-              data: data,
-              borderColor: '#2e7d32',
-              backgroundColor: 'rgba(46, 125, 50, 0.2)',
-              fill: true,
-              tension: 0.4,
-              pointRadius: 8,
-              pointBackgroundColor: 'white',
-              pointBorderColor: '#2e7d32',
-              pointBorderWidth: 2,
-              pointHoverRadius: 10,
-              pointHoverBackgroundColor: '#2e7d32',
-              pointHoverBorderColor: 'white',
-              borderWidth: 3
-            }]
+            datasets: datasets
           },
           options: {
             responsive: true,
@@ -1198,7 +1232,8 @@
           
           return {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            data: monthlyAverages
+            data: monthlyAverages,
+            sixMonthAverage
           };
         }
         
@@ -1276,7 +1311,8 @@
           
           return {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            data: monthlyAverages
+            data: monthlyAverages,
+            sixMonthAverage
           };
         }
         
