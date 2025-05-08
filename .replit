@@ -27,7 +27,7 @@ waitForPort = 5000
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port=5000 --non-interactive"]
 deploymentTarget = "cloudrun"
-build = ["sh", "-c", "npx expo install && npm install"]
+build = ["sh", "-c", "npm install --legacy-peer-deps"]
 
 [[ports]]
 localPort = 5000
