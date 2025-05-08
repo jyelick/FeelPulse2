@@ -36,7 +36,7 @@ args = "npm install"
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port=5000 --non-interactive"]
 deploymentTarget = "cloudrun"
-build = ["sh", "-c", "npm install --legacy-peer-deps --force"]
+build = ["sh", "-c", "npm install && npx expo export:web"]
 
 [env]
 REPLIT_DISABLE_PACKAGE_LAYER = "1"
