@@ -1126,7 +1126,7 @@
       // Helper functions for data processing
       function processMoodDataForPeriod(data, period) {
         if (!data || !data.length) {
-          return { labels: [], data: [] };
+          return { labels: [], data: [], sixMonthAverage: null };
         }
         
         // Sort data by date (oldest to newest)
@@ -1134,6 +1134,17 @@
         
         // Map mood values
         const moodMap = { 'sad': 1, 'meh': 2, 'neutral': 3, 'happy': 4, 'excited': 5 };
+        
+        // Calculate 6-month average (approximately 180 days)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setDate(sixMonthsAgo.getDate() - 180);
+        const sixMonthData = sortedData.filter(item => new Date(item.date) >= sixMonthsAgo);
+        
+        let sixMonthAverage = null;
+        if (sixMonthData.length > 0) {
+          const sum = sixMonthData.reduce((total, item) => total + (moodMap[item.mood] || 3), 0);
+          sixMonthAverage = parseFloat((sum / sixMonthData.length).toFixed(1));
+        }
         
         if (period === 'weekly') {
           // Last 7 days
@@ -1147,7 +1158,8 @@
               const date = new Date(item.date);
               return date.toLocaleDateString('en-US', { weekday: 'short' });
             }),
-            data: filteredData.map(item => moodMap[item.mood] || 3)
+            data: filteredData.map(item => moodMap[item.mood] || 3),
+            sixMonthAverage
           };
         } else if (period === 'monthly') {
           // Last 30 days
@@ -1161,7 +1173,8 @@
               const date = new Date(item.date);
               return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             }),
-            data: filteredData.map(item => moodMap[item.mood] || 3)
+            data: filteredData.map(item => moodMap[item.mood] || 3),
+            sixMonthAverage
           };
         } else if (period === 'yearly') {
           // Group by month for the year
@@ -1194,11 +1207,22 @@
       
       function processHRVDataForPeriod(data, period) {
         if (!data || !data.length) {
-          return { labels: [], data: [] };
+          return { labels: [], data: [], sixMonthAverage: null };
         }
         
         // Sort data by date (oldest to newest)
         const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        // Calculate 6-month average (approximately 180 days)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setDate(sixMonthsAgo.getDate() - 180);
+        const sixMonthData = sortedData.filter(item => new Date(item.date) >= sixMonthsAgo);
+        
+        let sixMonthAverage = null;
+        if (sixMonthData.length > 0) {
+          const sum = sixMonthData.reduce((total, item) => total + item.value, 0);
+          sixMonthAverage = parseFloat((sum / sixMonthData.length).toFixed(1));
+        }
         
         if (period === 'weekly') {
           // Last 7 days
@@ -1212,7 +1236,8 @@
               const date = new Date(item.date);
               return date.toLocaleDateString('en-US', { weekday: 'short' });
             }),
-            data: filteredData.map(item => item.value)
+            data: filteredData.map(item => item.value),
+            sixMonthAverage
           };
         } else if (period === 'monthly') {
           // Last 30 days
@@ -1226,7 +1251,8 @@
               const date = new Date(item.date);
               return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             }),
-            data: filteredData.map(item => item.value)
+            data: filteredData.map(item => item.value),
+            sixMonthAverage
           };
         } else if (period === 'yearly') {
           // Group by month for the year
