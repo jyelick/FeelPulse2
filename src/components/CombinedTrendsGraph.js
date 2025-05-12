@@ -87,10 +87,18 @@ const CombinedTrendsGraph = ({
             }}
             labelComponent={
               <VictoryTooltip
-                cornerRadius={5}
+                cornerRadius={8}
                 flyoutStyle={{
-                  fill: theme.colors.surfaceVariant,
+                  fill: theme.colors.surface,
                   stroke: theme.colors.outline,
+                  strokeWidth: 1,
+                  filter: 'drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.15))',
+                  padding: { top: 8, bottom: 8, left: 12, right: 12 }
+                }}
+                style={{
+                  fill: theme.colors.onSurface,
+                  fontSize: 12,
+                  fontWeight: '500'
                 }}
               />
             }
