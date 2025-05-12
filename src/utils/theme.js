@@ -2,38 +2,46 @@
 import { MD3LightTheme, configureFonts } from 'react-native-paper';
 
 const customColors = {
-  primary: '#2E7D32', // Main green
-  primaryContainer: '#A5D6A7', // Light green container
-  secondary: '#1976D2', // Blue accent
-  secondaryContainer: '#BBDEFB', // Light blue container
-  tertiary: '#FFA000', // Yellow/orange accent
-  tertiaryContainer: '#FFE082', // Light yellow container
-  error: '#F44336', // Red for errors
-  errorContainer: '#FFCDD2', // Light red container
-  background: '#F5F7FA', // Cool neutral background
-  surface: '#FFFFFF', // White surface
-  surfaceVariant: '#ECEFF1', // Cool grey surface variant
-  onPrimary: '#FFFFFF', // White text on primary
-  onSecondary: '#FFFFFF', // White text on secondary
-  onTertiary: '#000000', // Black text on tertiary
-  onBackground: '#263238', // Dark cool grey text
-  onSurface: '#263238', // Dark cool grey text
-  onSurfaceVariant: '#455A64', // Medium cool grey text
-  onError: '#FFFFFF', // White text on error
-  outline: '#90A4AE', // Cool grey outline
-  outlineVariant: '#CFD8DC', // Light cool grey outline
-  shadow: 'rgba(0, 0, 0, 0.1)', // Subtle shadow
+  primary: '#2E7D32',
+  primaryContainer: '#A5D6A7',
+  secondary: '#1E88E5',
+  secondaryContainer: '#90CAF9',
+  tertiary: '#FFA726',
+  tertiaryContainer: '#FFE0B2',
+  error: '#D32F2F',
+  errorContainer: '#FFCDD2',
+  background: '#F8FAFD',
+  surface: '#FFFFFF',
+  surfaceVariant: '#EEF2F6',
+  onPrimary: '#FFFFFF',
+  onSecondary: '#FFFFFF',
+  onTertiary: '#000000',
+  onBackground: '#1C2025',
+  onSurface: '#1C2025',
+  onSurfaceVariant: '#44474E',
+  onError: '#FFFFFF',
+  outline: '#79747E',
+  outlineVariant: '#C4C7C5',
+  shadow: 'rgba(0, 0, 0, 0.08)',
+  elevation: {
+    level0: 'transparent',
+    level1: 'rgba(0, 0, 0, 0.05)',
+    level2: 'rgba(0, 0, 0, 0.08)',
+    level3: 'rgba(0, 0, 0, 0.11)',
+    level4: 'rgba(0, 0, 0, 0.12)',
+    level5: 'rgba(0, 0, 0, 0.14)',
+  }
 };
 
 const fontConfig = {
   default: {
     regular: {
       fontFamily: 'System',
-      fontWeight: 'normal',
+      fontWeight: '400',
     },
     medium: {
       fontFamily: 'System',
-      fontWeight: '500',
+      fontWeight: '600',
     },
     light: {
       fontFamily: 'System',
@@ -41,7 +49,7 @@ const fontConfig = {
     },
     thin: {
       fontFamily: 'System',
-      fontWeight: '100',
+      fontWeight: '200',
     },
   },
 };
@@ -53,7 +61,7 @@ export const theme = {
     ...customColors,
   },
   fonts: configureFonts({ config: fontConfig }),
-  roundness: 12,
+  roundness: 16,
   animation: {
     scale: 1.0,
   },

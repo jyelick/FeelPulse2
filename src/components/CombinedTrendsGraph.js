@@ -12,7 +12,7 @@ const CombinedTrendsGraph = ({
   // Handle empty data
   const hasHRVData = hrvData && hrvData.length > 1;
   const hasMoodData = moodData && moodData.length > 1;
-  
+
   if ((!hasHRVData && !hasMoodData) || (!hasHRVData && showHRV && !hasMoodData)) {
     return (
       <View style={[styles.container, { height }]}>
@@ -38,7 +38,7 @@ const CombinedTrendsGraph = ({
     metric: 'Mood',
     label: `Mood: ${item.moodText || item.mood}/5\n${new Date(item.date || item.timestamp).toLocaleDateString()}`
   })) : [];
-  
+
   // Create a single dataset for common date range
   const allDates = [...(showHRV ? hrvChartData : []), ...moodChartData].map(d => d.x.getTime());
   const minDate = new Date(Math.min(...allDates));
@@ -48,12 +48,12 @@ const CombinedTrendsGraph = ({
   const normalizeHRV = (value) => {
     // If no HRV data, skip normalization
     if (!hasHRVData || hrvData.length === 0) return 0;
-    
+
     const hrvValues = hrvData.map(d => d.value);
     const minHRV = Math.min(...hrvValues);
     const maxHRV = Math.max(...hrvValues);
     const range = maxHRV - minHRV;
-    
+
     // Normalize to 1-5 scale (same as mood)
     if (range === 0) return 3; // Middle value if no range
     return ((value - minHRV) / range) * 4 + 1;
@@ -87,13 +87,13 @@ const CombinedTrendsGraph = ({
             }}
             labelComponent={
               <VictoryTooltip
-                cornerRadius={8}
+                cornerRadius={12}
                 flyoutStyle={{
                   fill: theme.colors.surface,
                   stroke: theme.colors.outline,
                   strokeWidth: 1,
-                  filter: 'drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.15))',
-                  padding: { top: 8, bottom: 8, left: 12, right: 12 }
+                  filter: 'drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.12))',
+                  padding: { top: 12, bottom: 12, left: 16, right: 16 }
                 }}
                 style={{
                   fill: theme.colors.onSurface,
@@ -115,7 +115,7 @@ const CombinedTrendsGraph = ({
             tickLabels: { fontSize: 10, fill: theme.colors.onSurfaceVariant }
           }}
         />
-        
+
         {/* X axis with dates */}
         <VictoryAxis
           tickFormat={(x) => {
@@ -128,7 +128,7 @@ const CombinedTrendsGraph = ({
           }}
           tickCount={5}
         />
-        
+
         {/* Legend */}
         <VictoryLegend
           x={Dimensions.get('window').width / 2 - 100}
@@ -144,7 +144,7 @@ const CombinedTrendsGraph = ({
             labels: { fontSize: 10, fill: theme.colors.onSurface } 
           }}
         />
-        
+
         {/* HRV Line */}
         {showHRV && hasHRVData && (
           <VictoryGroup data={normalizedHRVData}>
@@ -170,7 +170,7 @@ const CombinedTrendsGraph = ({
             />
           </VictoryGroup>
         )}
-        
+
         {/* Mood Line */}
         {hasMoodData && (
           <VictoryGroup data={moodChartData}>
@@ -196,7 +196,7 @@ const CombinedTrendsGraph = ({
           </VictoryGroup>
         )}
       </VictoryChart>
-      
+
       {/* Notes */}
       {showHRV && hasHRVData && (
         <Text style={styles.note}>
