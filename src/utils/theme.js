@@ -2,34 +2,34 @@
 import { MD3LightTheme, configureFonts } from 'react-native-paper';
 
 const customColors = {
-  primary: '#2E7D32',
-  primaryContainer: '#A5D6A7',
-  secondary: '#1E88E5',
-  secondaryContainer: '#90CAF9',
-  tertiary: '#FFA726',
-  tertiaryContainer: '#FFE0B2',
-  error: '#D32F2F',
-  errorContainer: '#FFCDD2',
-  background: '#F8FAFD',
+  primary: '#4E6AF6', // Modern blue
+  primaryContainer: '#EEF0FF',
+  secondary: '#8C42F9', // Vibrant purple
+  secondaryContainer: '#F4EBFF',
+  tertiary: '#FF6B6B', // Coral accent
+  tertiaryContainer: '#FFE9E9',
+  error: '#FF4B4B',
+  errorContainer: '#FFE5E5',
+  background: '#FAFBFF',
   surface: '#FFFFFF',
-  surfaceVariant: '#EEF2F6',
+  surfaceVariant: '#F4F6FF',
   onPrimary: '#FFFFFF',
   onSecondary: '#FFFFFF',
-  onTertiary: '#000000',
-  onBackground: '#1C2025',
-  onSurface: '#1C2025',
-  onSurfaceVariant: '#44474E',
+  onTertiary: '#FFFFFF',
+  onBackground: '#1A1B1F',
+  onSurface: '#1A1B1F',
+  onSurfaceVariant: '#45464F',
   onError: '#FFFFFF',
   outline: '#79747E',
-  outlineVariant: '#C4C7C5',
-  shadow: 'rgba(0, 0, 0, 0.08)',
+  outlineVariant: '#E4E6FF',
+  shadow: 'rgba(67, 71, 85, 0.13)',
   elevation: {
     level0: 'transparent',
-    level1: 'rgba(0, 0, 0, 0.05)',
-    level2: 'rgba(0, 0, 0, 0.08)',
-    level3: 'rgba(0, 0, 0, 0.11)',
-    level4: 'rgba(0, 0, 0, 0.12)',
-    level5: 'rgba(0, 0, 0, 0.14)',
+    level1: 'rgba(67, 71, 85, 0.05)',
+    level2: 'rgba(67, 71, 85, 0.08)',
+    level3: 'rgba(67, 71, 85, 0.11)',
+    level4: 'rgba(67, 71, 85, 0.12)',
+    level5: 'rgba(67, 71, 85, 0.14)',
   }
 };
 
@@ -61,7 +61,7 @@ export const theme = {
     ...customColors,
   },
   fonts: configureFonts({ config: fontConfig }),
-  roundness: 16,
+  roundness: 20,
   animation: {
     scale: 1.0,
   },

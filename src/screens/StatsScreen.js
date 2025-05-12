@@ -267,11 +267,21 @@ const styles = StyleSheet.create({
   graphCard: {
     marginBottom: 16,
     elevation: 2,
+    borderRadius: 24,
+    shadowColor: theme.colors.shadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 1,
+    shadowRadius: 16,
   },
   insightCard: {
     marginBottom: 16,
     backgroundColor: theme.colors.secondaryContainer,
     elevation: 2,
+    borderRadius: 24,
+    shadowColor: theme.colors.shadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 1,
+    shadowRadius: 16,
   },
   cardTitle: {
     fontSize: 18,
