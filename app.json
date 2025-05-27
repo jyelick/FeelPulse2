@@ -1,26 +1,28 @@
 {
   "expo": {
-    "name": "HRV Mood Tracker",
-    "slug": "hrv-mood-tracker",
+    "name": "FeelPulse",
+    "slug": "feelpulse",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./generated-icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./generated-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2e7d32"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourdomain.hrvmoodtracker",
+      "bundleIdentifier": "com.feelpulse.app",
       "infoPlist": {
-        "NSHealthShareUsageDescription": "This app requires access to your health data to track your heart rate variability (HRV) over time to help you monitor stress levels.",
-        "NSHealthUpdateUsageDescription": "This app requires permission to write to your health data."
-      }
+        "NSHealthShareUsageDescription": "FeelPulse needs access to your heart rate variability data to provide personalized mood and stress insights.",
+        "NSHealthUpdateUsageDescription": "FeelPulse may write mood data to your health records for comprehensive tracking.",
+        "NSMotionUsageDescription": "FeelPulse uses motion data to enhance stress detection accuracy."
+      },
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
