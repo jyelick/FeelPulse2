@@ -15,15 +15,35 @@ import { LinearGradient } from 'expo-linear-gradient';
 const SettingsScreen = () => {
   const [hasDiagnosis, setHasDiagnosis] = useState<boolean | null>(true);
   const [diagnosisType, setDiagnosisType] = useState<string>('anxiety');
+  const [gender, setGender] = useState<string>('');
+  const [age, setAge] = useState<string>('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [showDiagnosisOptions, setShowDiagnosisOptions] = useState(false);
+  const [showGenderOptions, setShowGenderOptions] = useState(false);
+  const [showAgeOptions, setShowAgeOptions] = useState(false);
 
   const diagnosisOptions = [
     { key: 'depression', label: 'Depression' },
     { key: 'anxiety', label: 'Anxiety' },
     { key: 'bipolar', label: 'Bipolar Disorder' },
     { key: 'other', label: 'Other' },
+  ];
+
+  const genderOptions = [
+    { key: 'female', label: 'Female' },
+    { key: 'male', label: 'Male' },
+    { key: 'non-binary', label: 'Non-binary' },
+    { key: 'prefer-not-to-say', label: 'Prefer not to say' },
+  ];
+
+  const ageOptions = [
+    { key: '18-24', label: '18-24' },
+    { key: '25-34', label: '25-34' },
+    { key: '35-44', label: '35-44' },
+    { key: '45-54', label: '45-54' },
+    { key: '55-64', label: '55-64' },
+    { key: '65+', label: '65+' },
   ];
 
   const saveSettings = () => {
@@ -38,6 +58,16 @@ const SettingsScreen = () => {
   const selectDiagnosis = (type: string) => {
     setDiagnosisType(type);
     setShowDiagnosisOptions(false);
+  };
+
+  const selectGender = (selectedGender: string) => {
+    setGender(selectedGender);
+    setShowGenderOptions(false);
+  };
+
+  const selectAge = (selectedAge: string) => {
+    setAge(selectedAge);
+    setShowAgeOptions(false);
   };
 
   return (
@@ -141,6 +171,92 @@ const SettingsScreen = () => {
                 )}
               </View>
             )}
+
+            {/* Gender Selection */}
+            <View style={styles.demographicSection}>
+              <Text style={styles.sectionTitle}>Gender</Text>
+              <TouchableOpacity
+                style={styles.dropdownButton}
+                onPress={() => setShowGenderOptions(!showGenderOptions)}
+              >
+                <Text style={styles.dropdownText}>
+                  {genderOptions.find(g => g.key === gender)?.label || 'Select gender'}
+                </Text>
+                <Ionicons 
+                  name={showGenderOptions ? 'chevron-up' : 'chevron-down'} 
+                  size={20} 
+                  color="#757575" 
+                />
+              </TouchableOpacity>
+              
+              {showGenderOptions && (
+                <View style={styles.dropdownOptions}>
+                  {genderOptions.map((option) => (
+                    <TouchableOpacity
+                      key={option.key}
+                      style={[
+                        styles.dropdownOption,
+                        gender === option.key && styles.selectedOption
+                      ]}
+                      onPress={() => selectGender(option.key)}
+                    >
+                      <Text style={[
+                        styles.optionText,
+                        gender === option.key && styles.selectedOptionText
+                      ]}>
+                        {option.label}
+                      </Text>
+                      {gender === option.key && (
+                        <Ionicons name="checkmark" size={20} color="#2e7d32" />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            {/* Age Selection */}
+            <View style={styles.demographicSection}>
+              <Text style={styles.sectionTitle}>Age Range</Text>
+              <TouchableOpacity
+                style={styles.dropdownButton}
+                onPress={() => setShowAgeOptions(!showAgeOptions)}
+              >
+                <Text style={styles.dropdownText}>
+                  {ageOptions.find(a => a.key === age)?.label || 'Select age range'}
+                </Text>
+                <Ionicons 
+                  name={showAgeOptions ? 'chevron-up' : 'chevron-down'} 
+                  size={20} 
+                  color="#757575" 
+                />
+              </TouchableOpacity>
+              
+              {showAgeOptions && (
+                <View style={styles.dropdownOptions}>
+                  {ageOptions.map((option) => (
+                    <TouchableOpacity
+                      key={option.key}
+                      style={[
+                        styles.dropdownOption,
+                        age === option.key && styles.selectedOption
+                      ]}
+                      onPress={() => selectAge(option.key)}
+                    >
+                      <Text style={[
+                        styles.optionText,
+                        age === option.key && styles.selectedOptionText
+                      ]}>
+                        {option.label}
+                      </Text>
+                      {age === option.key && (
+                        <Ionicons name="checkmark" size={20} color="#2e7d32" />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
           </View>
         </View>
 
@@ -329,6 +445,9 @@ const styles = StyleSheet.create({
     color: '#2e7d32',
   },
   diagnosisTypeSection: {
+    marginTop: 20,
+  },
+  demographicSection: {
     marginTop: 20,
   },
   dropdownButton: {
