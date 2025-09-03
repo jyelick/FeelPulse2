@@ -15,6 +15,7 @@ const HomeScreen = () => {
   const [latestHRV, setLatestHRV] = useState<number>(45.6);
   const [stressLevel, setStressLevel] = useState<'low' | 'moderate' | 'high'>('moderate');
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [lastSleep] = useState<{ duration: number; quality: number }>({ duration: 8.5, quality: 4 });
 
   const moods = [
     { key: 'sad', emoji: '😢', label: 'Sad' },
@@ -111,6 +112,45 @@ const HomeScreen = () => {
           </View>
         </View>
 
+        {/* Sleep Summary Card */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={['#1a237e', '#3f51b5']}
+            style={styles.cardHeader}
+          >
+            <Text style={styles.cardTitle}>Last Night's Sleep</Text>
+          </LinearGradient>
+          <View style={styles.cardBody}>
+            <View style={styles.sleepSummary}>
+              <View style={styles.sleepInfo}>
+                <View style={styles.sleepDuration}>
+                  <Text style={styles.sleepValue}>{lastSleep.duration}h</Text>
+                  <Text style={styles.sleepLabel}>Duration</Text>
+                </View>
+                <View style={styles.sleepQuality}>
+                  <View style={styles.qualityStars}>
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <Ionicons
+                        key={i}
+                        name={i < lastSleep.quality ? "star" : "star-outline"}
+                        size={20}
+                        color={i < lastSleep.quality ? "#ffc107" : "#e0e0e0"}
+                      />
+                    ))}
+                  </View>
+                  <Text style={styles.sleepLabel}>Quality</Text>
+                </View>
+              </View>
+              <View style={styles.sleepRecommendation}>
+                <Ionicons name="bulb-outline" size={16} color="#1a237e" />
+                <Text style={styles.sleepRecommendationText}>
+                  Great sleep! Your HRV should be higher today.
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
         {/* Quick Stats Card */}
         <View style={styles.card}>
           <LinearGradient
@@ -135,6 +175,11 @@ const HomeScreen = () => {
                 <Ionicons name="trending-up" size={24} color="#2e7d32" />
                 <Text style={styles.statValue}>+5ms</Text>
                 <Text style={styles.statLabel}>Week Trend</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Ionicons name="shield-checkmark" size={24} color="#2e7d32" />
+                <Text style={styles.statValue}>78%</Text>
+                <Text style={styles.statLabel}>Wellness</Text>
               </View>
             </View>
           </View>
@@ -306,6 +351,52 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#757575',
     textAlign: 'center',
+  },
+  sleepSummary: {
+    alignItems: 'center',
+  },
+  sleepInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginBottom: 20,
+  },
+  sleepDuration: {
+    alignItems: 'center',
+  },
+  sleepQuality: {
+    alignItems: 'center',
+  },
+  sleepValue: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1a237e',
+    marginBottom: 4,
+  },
+  sleepLabel: {
+    fontSize: 12,
+    color: '#757575',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  qualityStars: {
+    flexDirection: 'row',
+    marginBottom: 4,
+  },
+  sleepRecommendation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(63, 81, 181, 0.1)',
+    padding: 12,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#1a237e',
+  },
+  sleepRecommendationText: {
+    marginLeft: 8,
+    color: '#212121',
+    fontSize: 14,
+    flex: 1,
   },
 });
 

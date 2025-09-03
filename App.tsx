@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 // Import screens
 import HomeScreen from './src/screens/HomeScreen';
 import MoodScreen from './src/screens/MoodScreen';
+import SleepScreen from './src/screens/SleepScreen';
 import HRVScreen from './src/screens/HRVScreen';
 import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
@@ -38,6 +39,9 @@ export default function App() {
                 break;
               case 'Mood':
                 iconName = focused ? 'happy' : 'happy-outline';
+                break;
+              case 'Sleep':
+                iconName = focused ? 'bed' : 'bed-outline';
                 break;
               case 'HRV':
                 iconName = focused ? 'pulse' : 'pulse-outline';
@@ -94,6 +98,11 @@ export default function App() {
           name="Mood" 
           component={MoodScreen}
           options={{ title: 'Mood Tracker' }}
+        />
+        <Tab.Screen 
+          name="Sleep" 
+          component={SleepScreen}
+          options={{ title: 'Sleep Tracker' }}
         />
         <Tab.Screen 
           name="HRV" 

@@ -18,12 +18,14 @@ const StatsScreen = () => {
     'You\'ve maintained consistent mood tracking for 5 days - great job!',
     'Your average HRV is gradually improving over the past week.',
     'Mood entries show a positive trend this month.',
-    'Your stress levels correlate with sleep quality patterns.',
+    'Your sleep quality directly impacts your HRV and mood the next day.',
+    'Getting 7+ hours of sleep improves your stress resilience by 23%.',
   ];
 
   const correlationData = [
     { label: 'HRV & Mood', value: 0.72, description: 'Strong positive correlation' },
     { label: 'Sleep & HRV', value: 0.68, description: 'Moderate positive correlation' },
+    { label: 'Sleep & Mood', value: 0.65, description: 'Moderate positive correlation' },
     { label: 'Exercise & Mood', value: 0.61, description: 'Moderate positive correlation' },
     { label: 'Stress & HRV', value: -0.58, description: 'Moderate negative correlation' },
   ];
@@ -105,21 +107,21 @@ const StatsScreen = () => {
                 </View>
               </View>
               <View style={styles.metricItem}>
-                <Ionicons name="shield-checkmark" size={24} color="#2e7d32" />
-                <Text style={styles.metricValue}>78%</Text>
-                <Text style={styles.metricLabel}>Stress Control</Text>
+                <Ionicons name="bed" size={24} color="#2e7d32" />
+                <Text style={styles.metricValue}>7.8h</Text>
+                <Text style={styles.metricLabel}>Avg Sleep</Text>
                 <View style={styles.metricTrend}>
                   <Ionicons name="trending-up" size={16} color="#4caf50" />
-                  <Text style={styles.trendText}>+5%</Text>
+                  <Text style={styles.trendText}>+15m</Text>
                 </View>
               </View>
               <View style={styles.metricItem}>
-                <Ionicons name="calendar" size={24} color="#2e7d32" />
-                <Text style={styles.metricValue}>15</Text>
-                <Text style={styles.metricLabel}>Streak Days</Text>
+                <Ionicons name="star" size={24} color="#2e7d32" />
+                <Text style={styles.metricValue}>4.2/5</Text>
+                <Text style={styles.metricLabel}>Sleep Quality</Text>
                 <View style={styles.metricTrend}>
-                  <Ionicons name="trophy" size={16} color="#ff9800" />
-                  <Text style={styles.trendText}>New!</Text>
+                  <Ionicons name="trending-up" size={16} color="#4caf50" />
+                  <Text style={styles.trendText}>+0.3</Text>
                 </View>
               </View>
             </View>
