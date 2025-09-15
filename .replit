@@ -41,10 +41,12 @@ args = "npm install"
 name = "FeelPulse iOS"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx expo start --tunnel"
-waitForPort = 19000
+args = "npx expo start --tunnel --port 8082"
 
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port=5000 --non-interactive"]
@@ -61,6 +63,10 @@ externalPort = 80
 [[ports]]
 localPort = 8081
 externalPort = 8081
+
+[[ports]]
+localPort = 8082
+externalPort = 3000
 
 [agent]
 expertMode = true
