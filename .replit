@@ -22,15 +22,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "FeelPulse iOS Web"
+args = "FeelPulse Web Preview"
 
 [[workflows.workflow]]
-name = "FeelPulse iOS Web"
+name = "FeelPulse Web Preview"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx expo start --web --port 5000"
+args = "HOST=0.0.0.0 WEB_HOST=0.0.0.0 PORT=${PORT:-5000} npx expo start --web --port ${PORT:-5000} --non-interactive --clear"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
