@@ -22,15 +22,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "FeelPulse Web Preview"
+args = "FeelPulse Web App"
 
 [[workflows.workflow]]
-name = "FeelPulse Web Preview"
+name = "FeelPulse Web App"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "CI=1 HOST=0.0.0.0 WEB_HOST=0.0.0.0 npx expo start --web --port ${PORT:-5000}"
+args = "npx serve -l ${PORT:-5000} dist"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -47,6 +47,18 @@ REPLIT_DISABLE_PACKAGE_LAYER = "1"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 8081
+externalPort = 8081
+
+[[ports]]
+localPort = 8082
+externalPort = 3000
+
+[[ports]]
+localPort = 33111
+externalPort = 4200
 
 [[ports]]
 localPort = 33277
