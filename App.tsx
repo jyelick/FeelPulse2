@@ -29,7 +29,6 @@ export default function App() {
     <NavigationContainer>
       <StatusBar style="light" backgroundColor={theme.primary} />
       <Tab.Navigator
-        id={undefined}
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName: keyof typeof Ionicons.glyphMap;
