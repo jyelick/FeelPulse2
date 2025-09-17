@@ -78,6 +78,64 @@ const StatsScreen = () => {
           </View>
         </View>
 
+        {/* Sleep & HRV Correlation Chart */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={['#1a237e', '#3f51b5']}
+            style={styles.cardHeader}
+          >
+            <Text style={styles.cardTitle}>Sleep & HRV Correlation</Text>
+          </LinearGradient>
+          <View style={styles.cardBody}>
+            <View style={styles.chartPlaceholder}>
+              <Ionicons name="bed" size={48} color="#1a237e" />
+              <Text style={styles.chartText}>Sleep Impact on HRV</Text>
+              <Text style={styles.chartSubtext}>
+                Better sleep quality leads to higher HRV values (r=0.68)
+              </Text>
+            </View>
+            <View style={styles.correlationSummary}>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Best HRV Days</Text>
+                <Text style={styles.summaryValue}>8+ hours sleep</Text>
+              </View>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Optimal Bedtime</Text>
+                <Text style={styles.summaryValue}>10:30 PM</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Sleep & Mood Correlation Chart */}
+        <View style={styles.card}>
+          <LinearGradient
+            colors={['#4527a0', '#7b1fa2']}
+            style={styles.cardHeader}
+          >
+            <Text style={styles.cardTitle}>Sleep & Mood Correlation</Text>
+          </LinearGradient>
+          <View style={styles.cardBody}>
+            <View style={styles.chartPlaceholder}>
+              <Ionicons name="happy" size={48} color="#4527a0" />
+              <Text style={styles.chartText}>Sleep Impact on Mood</Text>
+              <Text style={styles.chartSubtext}>
+                Quality sleep strongly correlates with positive mood (r=0.65)
+              </Text>
+            </View>
+            <View style={styles.correlationSummary}>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Happiest Days</Text>
+                <Text style={styles.summaryValue}>7.5-8.5h sleep</Text>
+              </View>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Sleep Quality</Text>
+                <Text style={styles.summaryValue}>4+ stars ideal</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
         {/* Key Metrics */}
         <View style={styles.card}>
           <LinearGradient
@@ -342,6 +400,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#212121',
     lineHeight: 20,
+  },
+  correlationSummary: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  summaryItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: '#757575',
+    textAlign: 'center',
+    marginBottom: 4,
+    fontWeight: '600',
+  },
+  summaryValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#212121',
+    textAlign: 'center',
   },
 });
 
