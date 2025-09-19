@@ -17,7 +17,7 @@ args = "Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "FeelPulse iOS"
+args = "iOS App"
 
 [[workflows.workflow]]
 name = "Server"
@@ -38,12 +38,12 @@ task = "shell.exec"
 args = "npm install"
 
 [[workflows.workflow]]
-name = "FeelPulse iOS"
+name = "iOS App"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx expo start --tunnel"
+args = "npx expo start --ios"
 waitForPort = 19000
 
 [deployment]
@@ -61,6 +61,3 @@ externalPort = 80
 [[ports]]
 localPort = 8081
 externalPort = 8081
-
-[agent]
-expertMode = true
