@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import { mockHRVData, mockHealthKitPermissions, mockHealthKitAuthorization } from '../utils/mockData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AppleHealthKit, { HealthValue, HealthKitPermissions } from 'react-native-health';
+import AppleHealthKit from 'react-native-health';
 
 /**
  * Enhanced HealthKit Service
@@ -77,17 +77,23 @@ export const requestHealthKitPermissions = async () => {
     const available = await isHealthKitAvailable();
     if (!available) {
       console.log('HealthKit not available on this platform');
-      // Fallback to mock data for non-iOS platforms
-      const permissions = mockHealthKitPermissions;
-      const isAuthorized = await mockHealthKitAuthorization();
-      
-      await storeHealthPermissions({
-        permissions,
-        authorized: isAuthorized,
-        lastChecked: new Date().toISOString()
-      });
-      
-      return isAuthorized;
+      // Only use mock auth for non-iOS platforms, not iOS failures
+      if (Platform.OS !== 'ios') {
+        const permissions = mockHealthKitPermissions;
+        const isAuthorized = await mockHealthKitAuthorization();
+        
+        await storeHealthPermissions({
+          permissions,
+          authorized: isAuthorized,
+          lastChecked: new Date().toISOString()
+        });
+        
+        return isAuthorized;
+      } else {
+        // On iOS, if HealthKit unavailable, don't store mock auth
+        console.log('HealthKit unavailable on iOS - check if app is running in Expo Go');
+        return false;
+      }
     }
     
     // Define permissions for HRV and Sleep data
@@ -126,9 +132,16 @@ export const requestHealthKitPermissions = async () => {
           console.log('Error checking post-init auth status:', error);
           resolve(false);
         } else {
-          // Check if we have at least one permission granted
-          const hasPermissions = Object.values(results).some(status => 
-            status === AppleHealthKit.Constants.AuthorizationStatus.SharingAuthorized
+          // Check if we have required permissions granted
+          const hrvStatus = results[AppleHealthKit.Constants.Permissions.HeartRateVariabilitySDNN];
+          const sleepStatus = results[AppleHealthKit.Constants.Permissions.SleepAnalysis];
+          const heartRateStatus = results[AppleHealthKit.Constants.Permissions.HeartRate];
+          
+          // Check for SHARING_AUTHORIZED status (uppercase constant)
+          const hasPermissions = (
+            hrvStatus === AppleHealthKit.Constants.AuthorizationStatus.SHARING_AUTHORIZED ||
+            sleepStatus === AppleHealthKit.Constants.AuthorizationStatus.SHARING_AUTHORIZED ||
+            heartRateStatus === AppleHealthKit.Constants.AuthorizationStatus.SHARING_AUTHORIZED
           );
           resolve(hasPermissions);
         }
@@ -145,17 +158,23 @@ export const requestHealthKitPermissions = async () => {
     return isAuthorized;
   } catch (error) {
     console.error('Error requesting HealthKit permissions:', error);
-    // Fallback to mock data on error
-    const permissions = mockHealthKitPermissions;
-    const isAuthorized = await mockHealthKitAuthorization();
-    
-    await storeHealthPermissions({
-      permissions,
-      authorized: isAuthorized,
-      lastChecked: new Date().toISOString()
-    });
-    
-    return isAuthorized;
+    // Only use mock auth for non-iOS platforms on error
+    if (Platform.OS !== 'ios') {
+      const permissions = mockHealthKitPermissions;
+      const isAuthorized = await mockHealthKitAuthorization();
+      
+      await storeHealthPermissions({
+        permissions,
+        authorized: isAuthorized,
+        lastChecked: new Date().toISOString()
+      });
+      
+      return isAuthorized;
+    } else {
+      // On iOS, if HealthKit fails, don't store mock auth
+      console.log('HealthKit error on iOS - may need custom dev client instead of Expo Go');
+      return false;
+    }
   }
 };
 
@@ -185,9 +204,16 @@ export const checkHealthKitStatus = async () => {
           console.log('Error checking auth status:', error);
           resolve(false);
         } else {
-          // Check if we have at least one permission granted
-          const hasPermissions = Object.values(results).some(status => 
-            status === AppleHealthKit.Constants.AuthorizationStatus.SharingAuthorized
+          // Check if we have required permissions granted
+          const hrvStatus = results[AppleHealthKit.Constants.Permissions.HeartRateVariabilitySDNN];
+          const sleepStatus = results[AppleHealthKit.Constants.Permissions.SleepAnalysis];
+          const heartRateStatus = results[AppleHealthKit.Constants.Permissions.HeartRate];
+          
+          // Check for SHARING_AUTHORIZED status (uppercase constant)
+          const hasPermissions = (
+            hrvStatus === AppleHealthKit.Constants.AuthorizationStatus.SHARING_AUTHORIZED ||
+            sleepStatus === AppleHealthKit.Constants.AuthorizationStatus.SHARING_AUTHORIZED ||
+            heartRateStatus === AppleHealthKit.Constants.AuthorizationStatus.SHARING_AUTHORIZED
           );
           resolve(hasPermissions);
         }
