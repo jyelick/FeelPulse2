@@ -147,11 +147,21 @@ const server = http.createServer(async (req, res) => {
           return;
         }
         
+        // Convert mood string to score for consistency
+        const moodScores = {
+          'sad': 2,
+          'meh': 3,
+          'neutral': 5,
+          'happy': 7,
+          'excited': 9
+        };
+        
         // Create new mood entry
         const newEntry = {
           id: mockData.moodEntries.length + 1,
           user_id: userId,
           mood,
+          mood_score: moodScores[mood] || 5,
           notes,
           timestamp: new Date().toISOString()
         };
@@ -314,9 +324,9 @@ const server = http.createServer(async (req, res) => {
               trend: { mood_slope: 0, hrv_slope: 0 }
             },
             data_completeness: {
-              days_with_hrv: recentHrvData.length,
-              days_with_sleep: recentSleepData.length,
-              days_with_mood: recentMoodData.length
+              days_with_hrv: new Set(recentHrvData.map(d => d.timestamp.split('T')[0])).size,
+              days_with_sleep: new Set(recentSleepData.map(d => d.date)).size,
+              days_with_mood: new Set(recentMoodData.map(d => d.timestamp.split('T')[0])).size
             }
           };
           
@@ -378,6 +388,12 @@ Return ONLY this JSON format:
 }`;
           
           console.log('Calling OpenAI for stress assessment...');
+          
+          // Store assessment data reference for fallback
+          const dataForFallback = {
+            avgMood: assessmentData.features.mood_avg,
+            dataCompleteness: assessmentData.data_completeness
+          };
           const response = await openai.chat.completions.create({
             model: "gpt-4o-mini", // Use a more reliable model
             messages: [
@@ -385,11 +401,14 @@ Return ONLY this JSON format:
               { role: "user", content: userPrompt }
             ],
             response_format: { type: "json_object" },
-            max_completion_tokens: 500
+            max_tokens: 500
           });
           
-          console.log('OpenAI response received, content length:', response.choices[0].message.content?.length || 0);
-          console.log('Raw response content:', response.choices[0].message.content);
+          console.log('OpenAI response received, content length:', response.choices[0]?.message?.content?.length || 0);
+          
+          if (!response.choices?.[0]?.message?.content) {
+            throw new Error('Invalid OpenAI response structure');
+          }
           
           const assessment = JSON.parse(response.choices[0].message.content);
           
@@ -416,10 +435,13 @@ Return ONLY this JSON format:
           console.error('Stress assessment error:', error);
           
           // Provide a fallback assessment if OpenAI fails
+          const fallbackScore = dataForFallback.avgMood > 0 ? 
+            Math.min(100, Math.max(0, Math.round(dataForFallback.avgMood * 15 + 25))) : 50;
+          
           const fallbackAssessment = {
-            level: assessmentData.features.mood_avg < 4 ? 'moderate' : 'low',
-            score: Math.round(assessmentData.features.mood_avg * 15 + 25),
-            rationale: 'Assessment based on available mood and wellness data. OpenAI analysis temporarily unavailable.',
+            level: dataForFallback.avgMood < 4 ? 'moderate' : 'low',
+            score: fallbackScore,
+            rationale: 'Assessment based on available mood and wellness data. AI analysis temporarily unavailable.',
             contributing_factors: ['Limited data analysis capability'],
             recommendations: ['Continue tracking your wellness data', 'Try the assessment again later'],
             trend: 'stable',
