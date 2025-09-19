@@ -329,6 +329,14 @@ const server = http.createServer(async (req, res) => {
     const content = fs.readFileSync(filePath);
     res.statusCode = 200;
     res.setHeader('Content-Type', contentType);
+    
+    // Add cache-busting headers for HTML files to ensure updates are visible
+    if (contentType === 'text/html') {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+    
     res.end(content);
   } catch (error) {
     console.error('Static file error:', error);
