@@ -32,6 +32,15 @@ const mockData = {
     { id: 3, user_id: 1, mood: 'sad', notes: 'Stressed about project deadline.', timestamp: new Date(Date.now() - 2*24*60*60*1000).toISOString() },
     { id: 4, user_id: 1, mood: 'happy', notes: 'Weekend with friends.', timestamp: new Date(Date.now() - 3*24*60*60*1000).toISOString() },
     { id: 5, user_id: 1, mood: 'excited', notes: 'Started a new book!', timestamp: new Date(Date.now() - 4*24*60*60*1000).toISOString() }
+  ],
+  sleepEntries: [
+    { id: 1, user_id: 1, hours: 8.0, quality: 5, notes: 'Great night\'s rest', timestamp: new Date(Date.now() - 0*24*60*60*1000).toISOString() },
+    { id: 2, user_id: 1, hours: 6.5, quality: 3, notes: 'Woke up early', timestamp: new Date(Date.now() - 1*24*60*60*1000).toISOString() },
+    { id: 3, user_id: 1, hours: 7.5, quality: 4, notes: 'Pretty good', timestamp: new Date(Date.now() - 2*24*60*60*1000).toISOString() },
+    { id: 4, user_id: 1, hours: 7.0, quality: 3, notes: 'Average', timestamp: new Date(Date.now() - 3*24*60*60*1000).toISOString() },
+    { id: 5, user_id: 1, hours: 8.0, quality: 5, notes: 'Excellent sleep', timestamp: new Date(Date.now() - 4*24*60*60*1000).toISOString() },
+    { id: 6, user_id: 1, hours: 6.0, quality: 2, notes: 'Restless night', timestamp: new Date(Date.now() - 5*24*60*60*1000).toISOString() },
+    { id: 7, user_id: 1, hours: 7.5, quality: 4, notes: 'Good sleep', timestamp: new Date(Date.now() - 6*24*60*60*1000).toISOString() }
   ]
 };
 
@@ -178,6 +187,47 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       
+      // Get sleep entries
+      if (pathname === '/api/sleep' && req.method === 'GET') {
+        // Sort by timestamp in descending order to mimic database query
+        const sortedData = [...mockData.sleepEntries].sort((a, b) => 
+          new Date(b.timestamp) - new Date(a.timestamp)
+        );
+        
+        res.statusCode = 200;
+        res.end(JSON.stringify(sortedData));
+        return;
+      }
+      
+      // Save sleep entry
+      if (pathname === '/api/sleep' && req.method === 'POST') {
+        const body = await parseBody(req);
+        const { hours, quality, notes, userId = 1 } = body;
+        
+        if (!hours || !quality) {
+          res.statusCode = 400;
+          res.end(JSON.stringify({ error: 'Hours and quality are required' }));
+          return;
+        }
+        
+        // Create new sleep entry
+        const newEntry = {
+          id: mockData.sleepEntries.length + 1,
+          user_id: userId,
+          hours: parseFloat(hours),
+          quality: parseInt(quality),
+          notes,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Add to mock data
+        mockData.sleepEntries.push(newEntry);
+        
+        res.statusCode = 201;
+        res.end(JSON.stringify(newEntry));
+        return;
+      }
+      
       // Get user settings
       if (pathname.startsWith('/api/settings/') && req.method === 'GET') {
         const userId = parseInt(pathname.split('/')[3]);
@@ -292,7 +342,7 @@ const server = http.createServer(async (req, res) => {
 function startServer() {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running at http://0.0.0.0:${PORT}/`);
-    console.log(`Using mock data with ${mockData.users.length} users, ${mockData.hrvData.length} HRV entries, and ${mockData.moodEntries.length} mood entries`);
+    console.log(`Using mock data with ${mockData.users.length} users, ${mockData.hrvData.length} HRV entries, ${mockData.moodEntries.length} mood entries, and ${mockData.sleepEntries.length} sleep entries`);
   });
 }
 
