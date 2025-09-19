@@ -1,21 +1,45 @@
 import { Platform } from 'react-native';
 import { mockHRVData, mockHealthKitPermissions, mockHealthKitAuthorization } from '../utils/mockData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import HealthKit from 'react-native-health';
+import AppleHealthKit, { HealthValue, HealthKitPermissions } from 'react-native-health';
 
 /**
  * Enhanced HealthKit Service
  * 
  * This service provides a comprehensive interface for working with 
- * Apple HealthKit data in the app. 
+ * Apple HealthKit data in the app using react-native-health.
  * 
- * For production, this would be replaced with actual HealthKit integration.
- * For now, we'll use sophisticated mock implementations that mimic real behavior.
+ * IMPORTANT: This requires proper Expo configuration for HealthKit:
+ * 1. Add HealthKit capability in app.json/app.config.js
+ * 2. Add NSHealthShareUsageDescription and NSHealthUpdateUsageDescription
+ * 3. Use expo prebuild and custom dev client (HealthKit won't work in Expo Go)
+ * 4. Ensure react-native-health is properly linked
+ * 
+ * For development without iOS device, falls back to mock data.
  */
 
 // Check if HealthKit is available (iOS only)
-export const isHealthKitAvailable = () => {
-  return Platform.OS === 'ios';
+export const isHealthKitAvailable = async () => {
+  if (Platform.OS !== 'ios') {
+    return false;
+  }
+  
+  try {
+    // Check if HealthKit is available on device using callback
+    return new Promise((resolve) => {
+      AppleHealthKit.isAvailable((error, available) => {
+        if (error) {
+          console.log('HealthKit availability check failed:', error);
+          resolve(false);
+        } else {
+          resolve(available);
+        }
+      });
+    });
+  } catch (error) {
+    console.log('HealthKit availability check failed:', error);
+    return false;
+  }
 };
 
 // Get stored health permissions from AsyncStorage
@@ -50,7 +74,8 @@ export const requestHealthKitPermissions = async () => {
       return true;
     }
     
-    if (!isHealthKitAvailable()) {
+    const available = await isHealthKitAvailable();
+    if (!available) {
       console.log('HealthKit not available on this platform');
       // Fallback to mock data for non-iOS platforms
       const permissions = mockHealthKitPermissions;
@@ -69,20 +94,46 @@ export const requestHealthKitPermissions = async () => {
     const permissions = {
       permissions: {
         read: [
-          HealthKit.Constants.Permissions.HeartRateVariabilitySDNN,
-          HealthKit.Constants.Permissions.SleepAnalysis,
-          HealthKit.Constants.Permissions.HeartRate,
-          HealthKit.Constants.Permissions.RestingHeartRate
+          AppleHealthKit.Constants.Permissions.HeartRateVariabilitySDNN,
+          AppleHealthKit.Constants.Permissions.SleepAnalysis,
+          AppleHealthKit.Constants.Permissions.HeartRate
         ],
         write: []
       }
     };
     
-    // Initialize HealthKit
-    await HealthKit.initHealthKit(permissions);
+    // Initialize HealthKit with callback
+    const initSuccess = await new Promise((resolve) => {
+      AppleHealthKit.initHealthKit(permissions, (error) => {
+        if (error) {
+          console.log('HealthKit initialization error:', error);
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
     
-    // Check authorization status
-    const isAuthorized = await HealthKit.isAuthorizedToRead(HealthKit.Constants.Permissions.HeartRateVariabilitySDNN);
+    if (!initSuccess) {
+      console.log('HealthKit initialization failed');
+      return false;
+    }
+    
+    // Check actual authorization status after initialization
+    const isAuthorized = await new Promise((resolve) => {
+      AppleHealthKit.getAuthStatus(permissions, (error, results) => {
+        if (error) {
+          console.log('Error checking post-init auth status:', error);
+          resolve(false);
+        } else {
+          // Check if we have at least one permission granted
+          const hasPermissions = Object.values(results).some(status => 
+            status === AppleHealthKit.Constants.AuthorizationStatus.SharingAuthorized
+          );
+          resolve(hasPermissions);
+        }
+      });
+    });
     
     // Store authorization results
     await storeHealthPermissions({
@@ -108,26 +159,42 @@ export const requestHealthKitPermissions = async () => {
   }
 };
 
-// Check HealthKit connection status with proper caching
+// Check HealthKit connection status
 export const checkHealthKitStatus = async () => {
   try {
-    const status = await getStoredHealthPermissions();
-    if (!status) {
+    const available = await isHealthKitAvailable();
+    if (!available) {
       return false;
     }
     
-    // If we checked recently, return cached result
-    const lastChecked = new Date(status.lastChecked);
-    const now = new Date();
-    const hoursSinceLastCheck = (now - lastChecked) / (1000 * 60 * 60);
+    // Check current authorization status from HealthKit directly
+    const authStatus = await new Promise((resolve) => {
+      const permissions = {
+        permissions: {
+          read: [
+            AppleHealthKit.Constants.Permissions.HeartRateVariabilitySDNN,
+            AppleHealthKit.Constants.Permissions.SleepAnalysis,
+            AppleHealthKit.Constants.Permissions.HeartRate
+          ],
+          write: []
+        }
+      };
+      
+      AppleHealthKit.getAuthStatus(permissions, (error, results) => {
+        if (error) {
+          console.log('Error checking auth status:', error);
+          resolve(false);
+        } else {
+          // Check if we have at least one permission granted
+          const hasPermissions = Object.values(results).some(status => 
+            status === AppleHealthKit.Constants.AuthorizationStatus.SharingAuthorized
+          );
+          resolve(hasPermissions);
+        }
+      });
+    });
     
-    // Recheck permission every 24 hours in case user revoked in settings
-    if (hoursSinceLastCheck < 24) {
-      return status.authorized;
-    }
-    
-    // Otherwise, check again
-    return await requestHealthKitPermissions();
+    return authStatus;
   } catch (error) {
     console.error('Error checking HealthKit status:', error);
     return false;
@@ -139,7 +206,8 @@ export const getHRVData = async (days = 5) => {
   console.log(`Fetching HRV data for last ${days} days...`);
   
   try {
-    if (!isHealthKitAvailable()) {
+    const available = await isHealthKitAvailable();
+    if (!available) {
       console.log('HealthKit not available, using mock data');
       // Fallback to mock data for non-iOS platforms
       return new Promise((resolve) => {
@@ -162,19 +230,28 @@ export const getHRVData = async (days = 5) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
     
-    // Fetch HRV data from HealthKit
+    // Fetch HRV data from HealthKit using callback
     const options = {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       ascending: false // Most recent first
     };
     
-    const samples = await HealthKit.getSamples(HealthKit.Constants.Permissions.HeartRateVariabilitySDNN, options);
+    const samples = await new Promise((resolve, reject) => {
+      AppleHealthKit.getHeartRateVariabilitySamples(options, (error, results) => {
+        if (error) {
+          console.log('Error fetching HRV data:', error);
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
     
     // Transform HealthKit data to our format
     const data = samples.map(sample => ({
       date: new Date(sample.startDate).toISOString().split('T')[0],
-      value: Math.round(sample.value * 1000 * 10) / 10, // Convert from seconds to ms and round
+      value: Math.round(sample.value * 10) / 10, // HRV is already in ms, just round
       sourceName: sample.sourceName || 'Apple Health'
     }));
     
@@ -231,7 +308,8 @@ export const getSleepData = async (days = 7) => {
   console.log(`Fetching sleep data for last ${days} days...`);
   
   try {
-    if (!isHealthKitAvailable()) {
+    const available = await isHealthKitAvailable();
+    if (!available) {
       console.log('HealthKit not available, using mock data');
       // Fallback to mock sleep data for non-iOS platforms
       return [];
@@ -249,14 +327,23 @@ export const getSleepData = async (days = 7) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
     
-    // Fetch sleep data from HealthKit
+    // Fetch sleep data from HealthKit using callback
     const options = {
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       ascending: false // Most recent first
     };
     
-    const samples = await HealthKit.getSamples(HealthKit.Constants.Permissions.SleepAnalysis, options);
+    const samples = await new Promise((resolve, reject) => {
+      AppleHealthKit.getSleepSamples(options, (error, results) => {
+        if (error) {
+          console.log('Error fetching sleep data:', error);
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+    });
     
     // Group sleep sessions by date
     const sleepByDate = {};
