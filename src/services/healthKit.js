@@ -234,21 +234,16 @@ export const getHRVData = async (days = 5) => {
   try {
     const available = await isHealthKitAvailable();
     if (!available) {
-      console.log('HealthKit not available, using mock data');
-      // Fallback to mock data for non-iOS platforms
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const data = mockHRVData(days);
-          resolve(data);
-        }, 800);
-      });
+      console.log('HealthKit not available, returning empty data');
+      // Return empty data when HealthKit is not available
+      return [];
     }
     
     // Check if user has granted permissions
     const hasPermission = await checkHealthKitStatus();
     if (!hasPermission) {
-      console.log('HealthKit permissions not granted, using mock data');
-      return mockHRVData(days);
+      console.log('HealthKit permissions not granted, returning empty data');
+      return [];
     }
     
     // Calculate date range
@@ -310,8 +305,8 @@ export const getHRVData = async (days = 5) => {
     
   } catch (error) {
     console.error('Error fetching HRV data from HealthKit:', error);
-    // Fallback to mock data on error
-    return mockHRVData(days);
+    // Return empty data on error
+    return [];
   }
 };
 
@@ -336,15 +331,15 @@ export const getSleepData = async (days = 7) => {
   try {
     const available = await isHealthKitAvailable();
     if (!available) {
-      console.log('HealthKit not available, using mock data');
-      // Fallback to mock sleep data for non-iOS platforms
+      console.log('HealthKit not available, returning empty data');
+      // Return empty data when HealthKit is not available
       return [];
     }
     
     // Check if user has granted permissions
     const hasPermission = await checkHealthKitStatus();
     if (!hasPermission) {
-      console.log('HealthKit permissions not granted, using mock data');
+      console.log('HealthKit permissions not granted, returning empty data');
       return [];
     }
     
