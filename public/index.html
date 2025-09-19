@@ -518,6 +518,9 @@
         <button class="nav-link" id="hrv-tab" data-bs-toggle="tab" data-bs-target="#hrv" type="button" role="tab" aria-controls="hrv" aria-selected="false">HRV</button>
       </li>
       <li class="nav-item" role="presentation">
+        <button class="nav-link" id="sleep-tab" data-bs-toggle="tab" data-bs-target="#sleep" type="button" role="tab" aria-controls="sleep" aria-selected="false">Sleep</button>
+      </li>
+      <li class="nav-item" role="presentation">
         <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button" role="tab" aria-controls="stats" aria-selected="false">Stats</button>
       </li>
       <li class="nav-item" role="presentation">
@@ -616,6 +619,77 @@
         </div>
       </div>
       
+      <!-- Sleep Tab -->
+      <div class="tab-pane fade" id="sleep">
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>Sleep Tracker</div>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-success active" id="weekly-sleep-btn">Weekly</button>
+              <button type="button" class="btn btn-sm btn-outline-success" id="monthly-sleep-btn">Monthly</button>
+              <button type="button" class="btn btn-sm btn-outline-success" id="yearly-sleep-btn">Yearly</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <canvas id="sleepTrackerChart" height="300"></canvas>
+          </div>
+        </div>
+        
+        <div class="card mb-4">
+          <div class="card-header">
+            Log Sleep Data
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Bedtime</label>
+                  <input type="time" id="bedtime" class="form-control" value="22:30">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Wake Time</label>
+                  <input type="time" id="waketime" class="form-control" value="07:00">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Sleep Quality (1-5)</label>
+                  <select id="sleepQuality" class="form-select">
+                    <option value="1">1 - Very Poor</option>
+                    <option value="2">2 - Poor</option>
+                    <option value="3" selected>3 - Fair</option>
+                    <option value="4">4 - Good</option>
+                    <option value="5">5 - Excellent</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <textarea id="sleepNotes" class="form-control" placeholder="Sleep notes (optional)" style="min-height: 80px;"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="text-end">
+              <button id="saveSleep" class="btn btn-success">
+                <i class="bi bi-moon-stars me-2"></i> Save Sleep Data
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            Sleep Insights
+          </div>
+          <div class="card-body">
+            <ul>
+              <li>Your average sleep duration this week: <strong><span id="avgSleepDuration">7.2 hours</span></strong></li>
+              <li>Most consistent bedtime: <strong><span id="consistentBedtime">10:30 PM</span></strong></li>
+              <li>Sleep quality trend: <strong><span id="sleepQualityTrend">Improving</span></strong></li>
+              <li>Recommendation: Try maintaining consistent sleep and wake times for better recovery.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <!-- HRV Tab -->
       <div class="tab-pane fade" id="hrv">
         <div class="card mb-4">
@@ -657,15 +731,35 @@
           </div>
         </div>
         
+        <div class="card mb-4">
+          <div class="card-header">
+            Sleep & HRV Correlation
+          </div>
+          <div class="card-body">
+            <canvas id="sleepHrvChart" height="300"></canvas>
+          </div>
+        </div>
+        
+        <div class="card mb-4">
+          <div class="card-header">
+            Sleep & Mood Correlation
+          </div>
+          <div class="card-body">
+            <canvas id="sleepMoodChart" height="300"></canvas>
+          </div>
+        </div>
+        
         <div class="card">
           <div class="card-header">
-            Insights
+            Insights & Correlations
           </div>
           <div class="card-body">
             <ul id="insights">
-              <li>Your HRV tends to be lower on days you report feeling sad or stressed.</li>
-              <li>You've maintained consistent mood tracking for 5 days - great job!</li>
+              <li>Your HRV tends to be higher after 7+ hours of quality sleep.</li>
+              <li>Sleep quality strongly correlates with next-day mood ratings.</li>
               <li>Your average HRV is gradually improving over the past week.</li>
+              <li>Best sleep quality achieved with consistent bedtime around 10:30 PM.</li>
+              <li>You've maintained consistent tracking for 5 days - great job!</li>
             </ul>
           </div>
         </div>
@@ -735,6 +829,10 @@
       <i class="bi bi-heart-pulse"></i>
       <span>HRV</span>
     </a>
+    <a href="#" class="nav-item-bottom" id="sleep-nav">
+      <i class="bi bi-moon-stars"></i>
+      <span>Sleep</span>
+    </a>
     <a href="#" class="nav-item-bottom" id="stats-nav">
       <i class="bi bi-bar-chart"></i>
       <span>Stats</span>
@@ -759,6 +857,7 @@
       };
       let hrvData = [];
       let moodData = [];
+      let sleepData = [];
       
       // API functions
       async function fetchHRVData() {
@@ -1876,6 +1975,7 @@
           if (tabEl.id === 'stats-tab') {
             setTimeout(() => {
               initCombinedChart();
+              initSleepCorrelationCharts();
             }, 100); // Small delay to ensure the tab is fully shown
           } else if (tabEl.id === 'mood-tab') {
             setTimeout(() => {
@@ -1885,6 +1985,10 @@
           } else if (tabEl.id === 'hrv-tab') {
             setTimeout(() => {
               initHRVTracker('weekly');
+            }, 100);
+          } else if (tabEl.id === 'sleep-tab') {
+            setTimeout(() => {
+              initSleepTracker('weekly');
             }, 100);
           }
         });
@@ -1955,6 +2059,425 @@
         document.getElementById('monthly-hrv-btn').classList.remove('active');
         initHRVTracker('yearly');
       });
+      
+      // Sleep tracking functionality
+      async function fetchSleepData() {
+        // Mock sleep data - in real app this would come from Apple Health
+        return [
+          { date: '2025-05-07', bedtime: '22:30', waketime: '07:00', quality: 4, duration: 8.5, notes: 'Slept well' },
+          { date: '2025-05-06', bedtime: '23:15', waketime: '07:15', quality: 3, duration: 8.0, notes: 'Took a while to fall asleep' },
+          { date: '2025-05-05', bedtime: '22:45', waketime: '06:45', quality: 5, duration: 8.0, notes: 'Perfect sleep!' },
+          { date: '2025-05-04', bedtime: '23:00', waketime: '07:30', quality: 3, duration: 8.5, notes: 'Woke up a few times' },
+          { date: '2025-05-03', bedtime: '22:20', waketime: '06:50', quality: 4, duration: 8.5, notes: 'Good rest' },
+          { date: '2025-05-02', bedtime: '23:30', waketime: '07:45', quality: 2, duration: 8.25, notes: 'Restless night' },
+          { date: '2025-05-01', bedtime: '22:15', waketime: '07:00', quality: 5, duration: 8.75, notes: 'Excellent sleep' }
+        ];
+      }
+
+      function processSleepDataForPeriod(data, period) {
+        if (!data || !data.length) {
+          return { labels: [], duration: [], quality: [] };
+        }
+        
+        // Sort data by date (oldest to newest)
+        const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        if (period === 'weekly') {
+          // Last 7 days
+          const oneWeekAgo = new Date();
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+          
+          const filteredData = sortedData.filter(item => new Date(item.date) >= oneWeekAgo);
+          
+          return {
+            labels: filteredData.map(item => {
+              const date = new Date(item.date);
+              return date.toLocaleDateString('en-US', { weekday: 'short' });
+            }),
+            duration: filteredData.map(item => item.duration),
+            quality: filteredData.map(item => item.quality)
+          };
+        } else if (period === 'monthly') {
+          // Last 30 days
+          const oneMonthAgo = new Date();
+          oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+          
+          const filteredData = sortedData.filter(item => new Date(item.date) >= oneMonthAgo);
+          
+          return {
+            labels: filteredData.map(item => {
+              const date = new Date(item.date);
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }),
+            duration: filteredData.map(item => item.duration),
+            quality: filteredData.map(item => item.quality)
+          };
+        } else if (period === 'yearly') {
+          // Group by month for the year
+          const thisYear = new Date().getFullYear();
+          const monthlyDuration = Array(12).fill(0);
+          const monthlyQuality = Array(12).fill(0);
+          const monthlyCount = Array(12).fill(0);
+          
+          sortedData.forEach(item => {
+            const date = new Date(item.date);
+            if (date.getFullYear() === thisYear) {
+              const month = date.getMonth();
+              monthlyDuration[month] += item.duration;
+              monthlyQuality[month] += item.quality;
+              monthlyCount[month]++;
+            }
+          });
+          
+          // Calculate monthly averages
+          const monthlyAvgDuration = monthlyDuration.map((total, i) => 
+            monthlyCount[i] > 0 ? total / monthlyCount[i] : null
+          );
+          const monthlyAvgQuality = monthlyQuality.map((total, i) => 
+            monthlyCount[i] > 0 ? total / monthlyCount[i] : null
+          );
+          
+          return {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            duration: monthlyAvgDuration,
+            quality: monthlyAvgQuality
+          };
+        }
+        
+        return { labels: [], duration: [], quality: [] };
+      }
+
+      async function initSleepTracker(period = 'weekly') {
+        try {
+          sleepData = await fetchSleepData();
+          const processedData = processSleepDataForPeriod(sleepData, period);
+          
+          const ctx = document.getElementById('sleepTrackerChart');
+          if (!ctx) return;
+
+          // Destroy existing chart
+          if (window.sleepChart) {
+            window.sleepChart.destroy();
+          }
+
+          window.sleepChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: processedData.labels,
+              datasets: [
+                {
+                  label: 'Sleep Duration (hours)',
+                  data: processedData.duration,
+                  borderColor: '#28a745',
+                  backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                  fill: true,
+                  tension: 0.4,
+                  yAxisID: 'y'
+                },
+                {
+                  label: 'Sleep Quality (1-5)',
+                  data: processedData.quality,
+                  borderColor: '#20c997',
+                  backgroundColor: 'rgba(32, 201, 151, 0.1)',
+                  fill: false,
+                  tension: 0.4,
+                  yAxisID: 'y1'
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: {
+                mode: 'index',
+                intersect: false,
+              },
+              scales: {
+                y: {
+                  type: 'linear',
+                  display: true,
+                  position: 'left',
+                  title: {
+                    display: true,
+                    text: 'Sleep Duration (hours)'
+                  }
+                },
+                y1: {
+                  type: 'linear',
+                  display: true,
+                  position: 'right',
+                  title: {
+                    display: true,
+                    text: 'Sleep Quality (1-5)'
+                  },
+                  grid: {
+                    drawOnChartArea: false,
+                  },
+                  min: 1,
+                  max: 5
+                }
+              },
+              plugins: {
+                legend: {
+                  display: true,
+                  position: 'top'
+                }
+              }
+            }
+          });
+        } catch (error) {
+          console.error('Error initializing sleep tracker:', error);
+        }
+      }
+
+      async function initSleepCorrelationCharts() {
+        try {
+          // Create Sleep vs HRV correlation chart
+          await initSleepHrvChart();
+          // Create Sleep vs Mood correlation chart
+          await initSleepMoodChart();
+        } catch (error) {
+          console.error('Error initializing sleep correlation charts:', error);
+        }
+      }
+
+      async function initSleepHrvChart() {
+        const ctx = document.getElementById('sleepHrvChart');
+        if (!ctx) return;
+
+        // Mock correlation data
+        const correlationData = [
+          { sleep: 6.5, hrv: 35, date: '2025-05-01' },
+          { sleep: 7.8, hrv: 48, date: '2025-05-02' },
+          { sleep: 8.2, hrv: 52, date: '2025-05-03' },
+          { sleep: 7.0, hrv: 41, date: '2025-05-04' },
+          { sleep: 8.5, hrv: 55, date: '2025-05-05' },
+          { sleep: 7.2, hrv: 43, date: '2025-05-06' },
+          { sleep: 8.1, hrv: 51, date: '2025-05-07' }
+        ];
+
+        // Destroy existing chart
+        if (window.sleepHrvChart) {
+          window.sleepHrvChart.destroy();
+        }
+
+        window.sleepHrvChart = new Chart(ctx, {
+          type: 'scatter',
+          data: {
+            datasets: [{
+              label: 'Sleep Duration vs HRV',
+              data: correlationData.map(item => ({
+                x: item.sleep,
+                y: item.hrv
+              })),
+              backgroundColor: 'rgba(40, 167, 69, 0.6)',
+              borderColor: '#28a745',
+              pointRadius: 8,
+              pointHoverRadius: 12
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Sleep Duration (hours)'
+                },
+                min: 6,
+                max: 9
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'HRV Score'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `Sleep: ${context.parsed.x}h, HRV: ${context.parsed.y}`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      async function initSleepMoodChart() {
+        const ctx = document.getElementById('sleepMoodChart');
+        if (!ctx) return;
+
+        // Mock correlation data
+        const correlationData = [
+          { sleep: 6.5, mood: 2, date: '2025-05-01' },
+          { sleep: 7.8, mood: 4, date: '2025-05-02' },
+          { sleep: 8.2, mood: 5, date: '2025-05-03' },
+          { sleep: 7.0, mood: 3, date: '2025-05-04' },
+          { sleep: 8.5, mood: 5, date: '2025-05-05' },
+          { sleep: 7.2, mood: 3, date: '2025-05-06' },
+          { sleep: 8.1, mood: 4, date: '2025-05-07' }
+        ];
+
+        // Destroy existing chart
+        if (window.sleepMoodChart) {
+          window.sleepMoodChart.destroy();
+        }
+
+        window.sleepMoodChart = new Chart(ctx, {
+          type: 'scatter',
+          data: {
+            datasets: [{
+              label: 'Sleep Duration vs Mood',
+              data: correlationData.map(item => ({
+                x: item.sleep,
+                y: item.mood
+              })),
+              backgroundColor: 'rgba(32, 201, 151, 0.6)',
+              borderColor: '#20c997',
+              pointRadius: 8,
+              pointHoverRadius: 12
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Sleep Duration (hours)'
+                },
+                min: 6,
+                max: 9
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Mood Score (1-5)'
+                },
+                min: 1,
+                max: 5
+              }
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const moods = ['', 'Very Sad', 'Sad', 'Neutral', 'Happy', 'Very Happy'];
+                    return `Sleep: ${context.parsed.x}h, Mood: ${moods[context.parsed.y]}`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Set up sleep tracker period buttons
+      document.getElementById('weekly-sleep-btn')?.addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('monthly-sleep-btn').classList.remove('active');
+        document.getElementById('yearly-sleep-btn').classList.remove('active');
+        initSleepTracker('weekly');
+      });
+      
+      document.getElementById('monthly-sleep-btn')?.addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('weekly-sleep-btn').classList.remove('active');
+        document.getElementById('yearly-sleep-btn').classList.remove('active');
+        initSleepTracker('monthly');
+      });
+      
+      document.getElementById('yearly-sleep-btn')?.addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('weekly-sleep-btn').classList.remove('active');
+        document.getElementById('monthly-sleep-btn').classList.remove('active');
+        initSleepTracker('yearly');
+      });
+
+      // Save sleep entry
+      document.getElementById('saveSleep')?.addEventListener('click', function() {
+        const bedtime = document.getElementById('bedtime').value;
+        const waketime = document.getElementById('waketime').value;
+        const quality = document.getElementById('sleepQuality').value;
+        const notes = document.getElementById('sleepNotes').value;
+
+        if (!bedtime || !waketime) {
+          alert('Please enter both bedtime and wake time!');
+          return;
+        }
+
+        // Calculate sleep duration
+        const bedDateTime = new Date(`2000-01-01 ${bedtime}`);
+        const wakeDateTime = new Date(`2000-01-0${bedDateTime.getTime() > new Date(`2000-01-01 ${waketime}`).getTime() ? '2' : '1'} ${waketime}`);
+        const duration = (wakeDateTime - bedDateTime) / (1000 * 60 * 60); // hours
+
+        const sleepEntry = {
+          date: new Date().toISOString().split('T')[0],
+          bedtime,
+          waketime,
+          quality: parseInt(quality),
+          duration: Math.round(duration * 100) / 100,
+          notes
+        };
+
+        // Add to sleep data
+        sleepData.unshift(sleepEntry);
+        
+        // Update insights
+        updateSleepInsights();
+        
+        // Refresh the sleep chart
+        initSleepTracker('weekly');
+        
+        // Clear the form
+        document.getElementById('sleepNotes').value = '';
+        
+        alert('Sleep data saved successfully!');
+      });
+
+      function updateSleepInsights() {
+        if (sleepData.length === 0) return;
+        
+        const recentData = sleepData.slice(0, 7); // Last 7 entries
+        const avgDuration = recentData.reduce((sum, item) => sum + item.duration, 0) / recentData.length;
+        const avgQuality = recentData.reduce((sum, item) => sum + item.quality, 0) / recentData.length;
+        
+        // Find most common bedtime
+        const bedtimes = recentData.map(item => item.bedtime);
+        const bedtimeMode = bedtimes.sort((a,b) =>
+          bedtimes.filter(v => v===a).length - bedtimes.filter(v => v===b).length
+        ).pop();
+        
+        // Update UI
+        document.getElementById('avgSleepDuration').textContent = avgDuration.toFixed(1) + ' hours';
+        document.getElementById('consistentBedtime').textContent = bedtimeMode;
+        
+        // Determine quality trend
+        if (avgQuality >= 4) {
+          document.getElementById('sleepQualityTrend').textContent = 'Excellent';
+        } else if (avgQuality >= 3.5) {
+          document.getElementById('sleepQualityTrend').textContent = 'Improving';
+        } else if (avgQuality >= 3) {
+          document.getElementById('sleepQualityTrend').textContent = 'Fair';
+        } else {
+          document.getElementById('sleepQualityTrend').textContent = 'Needs attention';
+        }
+      }
+
     });
   </script>
 </body>
