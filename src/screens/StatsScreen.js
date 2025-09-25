@@ -46,9 +46,13 @@ const StatsScreen = () => {
       setHrvTrends(hrvTrendResults);
       setSleepTrends(sleepTrendResults);
 
-      // Calculate HRV vs Mood correlation
+      // Calculate HRV vs Mood correlation  
       const correlation = calculateHRVMoodCorrelation(hrvResults, moodResults);
       setCorrelationData(correlation);
+      
+      // Add stress event markers to HRV data if both exist for same dates
+      const hrvWithStress = addStressMarkersToHRV(hrvResults, moodResults);
+      setHrvData(hrvWithStress);
 
       console.log('Stats data loaded successfully');
     } catch (error) {
@@ -76,13 +80,31 @@ const StatsScreen = () => {
           hrv: hrv.value,
           mood: matchingMood.mood,
           x: hrv.value,
-          y: matchingMood.mood
+          y: matchingMood.mood,
+          hasStressEvent: matchingMood.hasStressEvent || false
         });
       }
     });
 
     return Array.from(correlationMap.values())
       .sort((a, b) => new Date(a.date) - new Date(b.date));
+  };
+
+  const addStressMarkersToHRV = (hrvData, moodData) => {
+    if (!hrvData || !moodData || hrvData.length === 0 || moodData.length === 0) {
+      return hrvData;
+    }
+
+    return hrvData.map(hrv => {
+      const matchingMood = moodData.find(mood => 
+        new Date(mood.timestamp).toISOString().split('T')[0] === hrv.date
+      );
+      
+      return {
+        ...hrv,
+        hasStressEvent: matchingMood ? matchingMood.hasStressEvent || false : false
+      };
+    });
   };
 
   const onRefresh = async () => {
@@ -105,7 +127,9 @@ const StatsScreen = () => {
     return data.slice(-7).map((item, index) => ({
       x: index + 1,
       y: item[valueKey] || 0,
-      label: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      label: new Date(item.date || item.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      hasStressEvent: item.hasStressEvent || false,
+      date: item.date || new Date(item.timestamp).toISOString().split('T')[0]
     }));
   };
 
@@ -183,13 +207,17 @@ const StatsScreen = () => {
                 />
                 <VictoryScatter
                   data={hrvChartData}
-                  size={4}
+                  size={({ datum }) => datum.hasStressEvent ? 8 : 4}
                   style={{
-                    data: { fill: theme.colors.primary }
+                    data: { 
+                      fill: ({ datum }) => datum.hasStressEvent ? '#FF5722' : theme.colors.primary,
+                      stroke: ({ datum }) => datum.hasStressEvent ? '#FFFFFF' : 'none',
+                      strokeWidth: ({ datum }) => datum.hasStressEvent ? 2 : 0
+                    }
                   }}
                 />
               </VictoryChart>
-              <Text style={styles.chartCaption}>Last 7 days (ms)</Text>
+              <Text style={styles.chartCaption}>Last 7 days (ms) ⚠️ = Stress Event</Text>
             </View>
           ) : (
             <Text style={styles.noDataText}>No HRV data available. Connect to Apple Health to see your trends.</Text>
@@ -236,13 +264,17 @@ const StatsScreen = () => {
                 />
                 <VictoryScatter
                   data={moodChartData}
-                  size={4}
+                  size={({ datum }) => datum.hasStressEvent ? 8 : 4}
                   style={{
-                    data: { fill: theme.colors.secondary }
+                    data: { 
+                      fill: ({ datum }) => datum.hasStressEvent ? '#FF5722' : theme.colors.secondary,
+                      stroke: ({ datum }) => datum.hasStressEvent ? '#FFFFFF' : 'none',
+                      strokeWidth: ({ datum }) => datum.hasStressEvent ? 2 : 0
+                    }
                   }}
                 />
               </VictoryChart>
-              <Text style={styles.chartCaption}>Last 7 days (1=Very Sad, 5=Very Happy)</Text>
+              <Text style={styles.chartCaption}>Last 7 days (1=Very Sad, 5=Very Happy) ⚠️ = Stress Event</Text>
             </View>
           ) : (
             <Text style={styles.noDataText}>No mood data available. Start tracking your mood to see patterns.</Text>
@@ -319,16 +351,21 @@ const StatsScreen = () => {
                 <VictoryAxis label="HRV (ms)" />
                 <VictoryScatter
                   data={correlationData}
-                  size={5}
+                  size={({ datum }) => datum.hasStressEvent ? 8 : 5}
                   style={{
                     data: { 
                       fill: ({ datum }) => {
+                        if (datum.hasStressEvent) {
+                          return '#FF5722'; // Stress events are red
+                        }
                         // Color code by mood: red (low) to green (high)
                         const intensity = (datum.y - 1) / 4; // Normalize to 0-1
                         const red = Math.round(255 * (1 - intensity));
                         const green = Math.round(255 * intensity);
                         return `rgb(${red}, ${green}, 0)`;
-                      }
+                      },
+                      stroke: ({ datum }) => datum.hasStressEvent ? '#FFFFFF' : 'none',
+                      strokeWidth: ({ datum }) => datum.hasStressEvent ? 2 : 0
                     }
                   }}
                   animate={{
@@ -337,7 +374,7 @@ const StatsScreen = () => {
                   }}
                 />
               </VictoryChart>
-              <Text style={styles.chartCaption}>Each point represents a day with both HRV and mood data</Text>
+              <Text style={styles.chartCaption}>Each point represents a day with both HRV and mood data ⚠️ = Stress Event</Text>
             </View>
           ) : (
             <Text style={styles.noDataText}>No correlation data available. Need both HRV and mood data for same dates.</Text>
