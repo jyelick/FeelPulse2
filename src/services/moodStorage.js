@@ -150,13 +150,17 @@ const generateSampleMoodData = (days = 5) => {
         break;
     }
     
+    // Occasionally add stress events (20% chance, more likely with lower moods)
+    const hasStressEvent = mood <= 2 ? Math.random() < 0.4 : Math.random() < 0.1;
+    
     data.push({
       timestamp: date.toISOString(),
       date: date.toISOString().split('T')[0],
       mood,
       moodText,
       moodEmoji,
-      notes: ''
+      notes: '',
+      hasStressEvent
     });
   }
   
