@@ -10,6 +10,7 @@ import OnboardingScreen from '../screens/OnboardingScreen';
 import DiagnosisScreen from '../screens/DiagnosisScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MoodTrackingScreen from '../screens/MoodTrackingScreen';
+import StatsScreen from '../screens/StatsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createStackNavigator();
@@ -26,6 +27,8 @@ const TabNavigator = () => {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Mood') {
             iconName = focused ? 'happy' : 'happy-outline';
+          } else if (route.name === 'Stats') {
+            iconName = focused ? 'stats-chart' : 'stats-chart-outline';
           } else if (route.name === 'Settings') {
             iconName = focused ? 'settings' : 'settings-outline';
           }
@@ -39,6 +42,7 @@ const TabNavigator = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Mood" component={MoodTrackingScreen} />
+      <Tab.Screen name="Stats" component={StatsScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
