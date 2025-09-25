@@ -124,13 +124,18 @@ const StatsScreen = () => {
   }, []);
 
   const formatChartData = (data, valueKey = 'value') => {
-    return data.slice(-7).map((item, index) => ({
-      x: index + 1,
-      y: item[valueKey] || 0,
-      label: new Date(item.date || item.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      hasStressEvent: item.hasStressEvent || false,
-      date: item.date || new Date(item.timestamp).toISOString().split('T')[0]
-    }));
+    if (!data || data.length === 0) return [];
+    
+    return data.slice(-7).map((item, index) => {
+      const dateObj = item.date ? new Date(item.date) : new Date(item.timestamp);
+      return {
+        x: index + 1,
+        y: item[valueKey] || 0,
+        label: dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        hasStressEvent: item.hasStressEvent || false,
+        date: item.date || dateObj.toISOString().split('T')[0]
+      };
+    });
   };
 
   const getTrendColor = (trend) => {
