@@ -7,28 +7,6 @@ channel = "stable-24_05"
 runButton = "Project"
 
 [[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "React Native App"
-
-[[workflows.workflow]]
-name = "Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node server.js"
-waitForPort = 5000
-
-[[workflows.workflow]]
 name = "Install Dependencies"
 author = 41617389
 mode = "sequential"
@@ -38,16 +16,41 @@ task = "shell.exec"
 args = "npm install"
 
 [[workflows.workflow]]
-name = "React Native App"
+name = "Project"
+mode = "parallel"
 author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "React Native App"
+
+[[workflows.workflow]]
+name = "Backend Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node server.js"
+waitForPort = 3001
 
 [workflows.workflow.metadata]
 outputType = "console"
 
+[[workflows.workflow]]
+name = "React Native App"
+author = "agent"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx expo start --clear --port 8080"
-waitForPort = 8080
+args = "npx expo start --web --port 5000"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [deployment]
 run = ["sh", "-c", "npx expo start --web --port=5000 --non-interactive"]
@@ -58,12 +61,12 @@ build = ["sh", "-c", "npm install && npx expo export --platform web"]
 REPLIT_DISABLE_PACKAGE_LAYER = "1"
 
 [[ports]]
-localPort = 5000
-externalPort = 80
+localPort = 3001
+externalPort = 3001
 
 [[ports]]
-localPort = 8080
-externalPort = 8080
+localPort = 5000
+externalPort = 80
 
 [[ports]]
 localPort = 8081
@@ -74,8 +77,8 @@ localPort = 33049
 externalPort = 3000
 
 [[ports]]
-localPort = 36495
-externalPort = 3001
+localPort = 33053
+externalPort = 3002
 
 [agent]
 expertMode = true

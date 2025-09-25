@@ -37,9 +37,17 @@ export const saveMoodEntry = async (entry) => {
   }
 };
 
-// Get all mood data or data for a specific number of days
+// Get all mood data from API first, then local storage as fallback
 export const getMoodData = async (days = 0) => {
   try {
+    // Try API first
+    const { fetchMoodFromAPI } = await import('./apiService');
+    const apiData = await fetchMoodFromAPI(days || 14);
+    if (apiData.length > 0) {
+      return days > 0 ? apiData.slice(0, days) : apiData;
+    }
+    
+    // Fall back to local storage
     const storedData = await AsyncStorage.getItem('userMoodEntries');
     
     if (!storedData) {

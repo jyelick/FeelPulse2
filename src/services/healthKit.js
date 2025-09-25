@@ -227,15 +227,22 @@ export const checkHealthKitStatus = async () => {
   }
 };
 
-// Get HRV data from HealthKit with proper date filtering
+// Get HRV data from backend API first, then HealthKit as fallback
 export const getHRVData = async (days = 5) => {
-  console.log(`Fetching HRV data for last ${days} days...`);
+  // Import API service dynamically
+  const { fetchHRVFromAPI } = await import('./apiService');
+  
+  // Try backend API first
+  const apiData = await fetchHRVFromAPI(days);
+  if (apiData.length > 0) {
+    return apiData;
+  }
+  console.log(`Fetching HRV data from HealthKit for last ${days} days...`);
   
   try {
     const available = await isHealthKitAvailable();
     if (!available) {
       console.log('HealthKit not available, returning empty data');
-      // Return empty data when HealthKit is not available
       return [];
     }
     
