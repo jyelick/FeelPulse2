@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Button, Card, Title, Paragraph, Divider, TextInput } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { Text, Button, Card, Title, Paragraph, Divider, TextInput, Switch, Chip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import { theme } from '../utils/theme';
@@ -11,6 +11,7 @@ const MoodTrackingScreen = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedMood, setSelectedMood] = useState(null);
   const [notes, setNotes] = useState('');
+  const [hasStressEvent, setHasStressEvent] = useState(false);
   const [markedDates, setMarkedDates] = useState({});
   const [moodHistory, setMoodHistory] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +31,12 @@ const MoodTrackingScreen = () => {
         const date = new Date(entry.timestamp).toISOString().split('T')[0];
         marked[date] = { 
           marked: true, 
-          dotColor: getMoodColor(entry.mood)
+          dotColor: getMoodColor(entry.mood),
+          // Add red dot overlay for stress events
+          ...(entry.hasStressEvent && { 
+            marked: true,
+            dots: [{ color: '#FF0000', selectedDotColor: '#FFFFFF' }]
+          })
         };
       });
       setMarkedDates(marked);
@@ -87,14 +93,24 @@ const MoodTrackingScreen = () => {
         mood: selectedMood,
         moodText: getMoodText(selectedMood),
         moodEmoji: getMoodEmoji(selectedMood),
-        notes: notes.trim()
+        notes: notes.trim(),
+        hasStressEvent: hasStressEvent
       };
       
       await saveMoodEntry(entry);
-      setNotes('');
-      loadMoodHistory(); // Reload to update calendar
       
-      // Add feedback animation or messaging here
+      // Show success feedback with stress event mention
+      if (hasStressEvent) {
+        Alert.alert(
+          'Mood Saved! ⚠️',
+          'Your mood has been logged with a stress event marker. This will help track correlations with your HRV and sleep data.',
+          [{ text: 'OK' }]
+        );
+      }
+      
+      setNotes('');
+      setHasStressEvent(false);
+      loadMoodHistory(); // Reload to update calendar
     } catch (error) {
       console.error('Error saving mood entry:', error);
     } finally {
@@ -117,9 +133,11 @@ const MoodTrackingScreen = () => {
     if (entry) {
       setSelectedMood(entry.mood);
       setNotes(entry.notes || '');
+      setHasStressEvent(entry.hasStressEvent || false);
     } else {
       setSelectedMood(null);
       setNotes('');
+      setHasStressEvent(false);
     }
   };
 
@@ -168,6 +186,37 @@ const MoodTrackingScreen = () => {
               onSelectMood={handleMoodSelection}
             />
             
+            {selectedMood && isToday(selectedDate) && (
+              <Card style={styles.stressEventCard}>
+                <Card.Content>
+                  <View style={styles.stressEventContainer}>
+                    <View style={styles.stressEventLabel}>
+                      <Text style={styles.stressEventText}>⚠️ Major Stressful Event</Text>
+                      <Text style={styles.stressEventSubtext}>
+                        Toggle if you experienced a significant stressor today
+                      </Text>
+                    </View>
+                    <Switch
+                      value={hasStressEvent}
+                      onValueChange={setHasStressEvent}
+                      thumbColor={hasStressEvent ? '#FF5722' : '#f4f3f4'}
+                      trackColor={{ false: '#767577', true: '#FFB399' }}
+                    />
+                  </View>
+                  {hasStressEvent && (
+                    <Chip
+                      icon="alert"
+                      mode="outlined"
+                      textStyle={{ color: '#FF5722' }}
+                      style={{ borderColor: '#FF5722', marginTop: 8 }}
+                    >
+                      Stress event will be shown in health correlations
+                    </Chip>
+                  )}
+                </Card.Content>
+              </Card>
+            )}
+            
             {selectedMood && (
               <View style={styles.notesContainer}>
                 <TextInput
@@ -207,6 +256,9 @@ const MoodTrackingScreen = () => {
                     <Text style={styles.dateText}>
                       {new Date(entry.timestamp).toLocaleDateString()}
                     </Text>
+                    {entry.hasStressEvent && (
+                      <Text style={styles.stressMarker}>⚠️ Stress Event</Text>
+                    )}
                   </View>
                   <View style={styles.historyMood}>
                     <Text style={styles.moodEmoji}>{entry.moodEmoji}</Text>
@@ -300,6 +352,38 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textAlign: 'center',
     color: theme.colors.onSurfaceVariant,
+  },
+  stressEventCard: {
+    marginTop: 16,
+    marginBottom: 8,
+    backgroundColor: '#FFF8E1',
+    elevation: 1,
+  },
+  stressEventContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  stressEventLabel: {
+    flex: 1,
+    marginRight: 16,
+  },
+  stressEventText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#FF5722',
+    marginBottom: 4,
+  },
+  stressEventSubtext: {
+    fontSize: 12,
+    color: theme.colors.onSurfaceVariant,
+    lineHeight: 16,
+  },
+  stressMarker: {
+    fontSize: 10,
+    color: '#FF5722',
+    fontWeight: '500',
+    marginTop: 2,
   },
 });
 
