@@ -73,6 +73,10 @@ externalPort = 8081
 localPort = 33049
 externalPort = 3000
 
+[[ports]]
+localPort = 39023
+externalPort = 3001
+
 [agent]
 expertMode = true
 integrations = ["javascript_openai:1.0.0"]
